@@ -80,3 +80,19 @@ def test_time_boundary(tmp_path, monkeypatch):
     monkeypatch.setattr(weather, "_cache", None)
     assert weather.weather_for("2025-02-04 17:30")["snowing"] is True      # 00:00 UTC = 17:00 MST
     assert weather.weather_for("2025-07-15 17:10")["temp_c"] == 24.0        # 23:00 UTC = 17:00 MDT
+
+
+def test_evaluation_holdout_covers_all_test_days(world):
+    import evaluate as E
+    inc = world[0]
+    tune_storm, tune_normal, test_storm, test_normal, holdout = E.split_days(inc)
+    assert set(test_storm) <= set(holdout)
+    assert set(test_normal) <= set(holdout) and len(test_normal) == 8
+    assert not set(holdout) & (set(tune_storm) | set(tune_normal))
+
+
+def test_same_fleet_variant_never_adds_trucks(world):
+    inc, zones, T, fc = world
+    _, moves, th = S.simulate(inc, zones, T, "2025-02-04", "stormstage", fc, extra=0)
+    assert th == 24 * S.K
+    assert not (moves["action"] == "activate").any()
