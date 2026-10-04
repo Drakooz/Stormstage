@@ -5,39 +5,50 @@ pip install -r requirements.txt
 python simulate.py                 # quick table on the 3 demo days (~3 s)
 python evaluate.py                 # tune on some days, test on others -> results/RESULTS.md (~75 s)
 python export_replay.py            # precompute replays for the app -> data/processed/replay/ (~5 s)
-python -m pytest -q                # 11 sanity tests
+python -m pytest -q                # 12 B tests (incl. the A → B integration test)
 # add  --forecast a --zones a  to any of the first three to use A's forecast() and zones.csv
 ```
 
-## Headline (stand-in forecast; rerun `evaluate.py` once A's forecast lands)
+## Headline: with A's real forecast (`--forecast a`)
 
-Data: team raw incidents converted from UTC to Calgary time, 2025 (7,005 incidents). **Held out:** all 12 test storm days and all 8 test normal days are excluded from every forecast history and from the fixed-plan training demand. On-call settings were tuned on 5 other storm days + 8 other normal days, with a rule fixed in advance: call in **4 on-call trucks when the forecast runs ×2.0 normal**.
+Data: team raw incidents in Calgary time, 2025. **Held out:** all 12 test storm days and all 8 test normal days are excluded from every forecast history and from the fixed-plan training demand. A's model is also causal: it trains only on UTC dates before each decision. On-call settings were re-tuned on 5 other storm days + 8 other normal days, with a rule fixed in advance: call in **4 on-call trucks when the storm factor reaches ×2.0**.
 
-**Names used everywhere (B results, C app, README):**
+**Storm factor** = the larger of two signals:
 
-- **Fixed yards (naive)**: the primary naive baseline.
-- **Best fixed plan**: a stronger secondary baseline.
-- **StormStage (same 6 trucks)**: hourly forecast-driven re-staging of the same fleet.
-- **StormStage + on-call**: the same re-staging, plus up to 4 on-call trucks during a forecast surge.
+- **Weather lift:** A's forecast with real weather ÷ A's forecast with calm weather.
+- **Nowcast:** reported incidents in the last 3 h vs normal for those hours.
 
-| 12 test storm days | Avg response | 9 in 10 within | Within 15 min | Truck-hours/day | Days beating naive |
-|---|---|---|---|---|---|
-| Fixed yards (naive) | 14.1 min | 27.1 min | 68% | 144 | — |
-| Best fixed plan | 13.7 min | 26.1 min | 71% | 144 | — |
-| StormStage (same 6 trucks) | 13.8 min | 26.0 min | 71% | 144 | 5 of 12 |
-| **StormStage + on-call** | **9.8 min** | **17.2 min** | **85%** | **170** | **10 of 12** |
-| Fixed, 10 trucks all day | 7.5 min | 13.1 min | 93% | 240 | — |
+Both signals are bounded. The earlier forecast ÷ `baseline_forecast()` divided by zero overnight, when last week's count was 0.
+
+**Names used everywhere:** Fixed yards (naive) = primary naive baseline · Best fixed plan = stronger secondary baseline · StormStage (same 6 trucks) · StormStage + on-call.
+
+| 12 test storm days | Avg response | 9 in 10 within | Within 15 min | Truck-hours/day | Days beating naive | Days beating best fixed |
+|---|---|---|---|---|---|---|
+| Fixed yards (naive) | 14.1 min | 27.1 min | 68% | 144 | — | — |
+| Best fixed plan | 13.7 min | 26.1 min | 71% | 144 | — | — |
+| StormStage (same 6 trucks) | 14.2 min | 27.1 min | 69% | 144 | 5 of 12 | 2 of 12 |
+| **StormStage + on-call** | **10.6 min** | **18.9 min** | **79%** | **176.5** | **10 of 12** | **8 of 12** |
+| Fixed, 10 trucks all day | 7.5 min | 13.1 min | 93% | 240 | — | — |
 
 | 8 test normal days | Avg response | Truck-hours/day |
 |---|---|---|
 | Fixed yards (naive) | 9.6 min | 144 |
 | Best fixed plan | 8.8 min | 144 |
-| StormStage (same 6 trucks) | 8.8 min | 144 |
-| StormStage + on-call | 8.9 min | 147.5 |
+| StormStage (same 6 trucks) | 9.2 min | 144 |
+| StormStage + on-call | 9.2 min | 147.5 |
 
-- **Same fleet:** re-staging the same 6 trucks is about a tie with fixed staging: 0.3 min better than the naive yards on average, and no better than the best fixed plan. Storm-day crashes stay spread across the city, so a sensible fixed spread is already close to optimal for a fixed-size fleet.
-- **On-call:** adding capacity at the right time is what moves the number. It beat the naive yards on 10 of 12 test storm days, with big wins on the heavy days (4 Feb 20.1 → 8.6 min, 24 Nov 24.3 → 10.2, 22 Apr 18.5 → 8.9). It costs +26 truck-hours on storm days versus +96 for keeping all 10 trucks on all day, and +3.5 on normal days with the same response.
-- **Demo days only (4 Feb, 14 Feb, 24 Nov 2025):** naive yards 19.5 min; same-fleet 19.9 min; + on-call 10.1 min.
+**Demo days (A's forecast):**
+
+| Day | Fixed yards (naive) | StormStage (same 6 trucks) | StormStage + on-call | Truck-hours |
+|---|---|---|---|---|
+| 4 Feb | 20.1 min | 19.6 min | 9.8 min | 228 |
+| 14 Feb | 14.2 min | 15.6 min | 12.3 min | 196 |
+| 24 Nov | 24.3 min | 24.8 min | 11.8 min | 196 |
+
+- **Same fleet:** re-staging the same 6 trucks ties fixed staging. A's forecast is citywide total × fixed historical zone shares, so where demand is expected doesn't change within a day, and B's hourly re-planning makes no relocations.
+- **On-call:** calling in capacity when the storm factor fires is what wins. It costs +32.5 truck-hours on storm days vs +96 for keeping all 10 trucks on all day, and +3.5 on normal days.
+- **With B's stand-in forecast** (`python evaluate.py`): on-call 9.8 min, same-fleet 13.8 min. The conclusions are the same.
+- **Fallback:** if A's forecast can't run for an hour (no training history before ~2 Jan), the adapter uses B's stand-in for that hour. 0 hours on all test days.
 
 ## Design decision for the team
 
