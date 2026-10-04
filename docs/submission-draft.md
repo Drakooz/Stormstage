@@ -4,9 +4,9 @@ Admest FC
 
 ## 2. Team Member Names and GitHub Handles
 
-- Thamer Elsadek: [GITHUB HANDLE: confirm with Thamer]
-- Salif Sylla: [GITHUB HANDLE: confirm with Salif]
-- Adam Bensidi: [GITHUB HANDLE: confirm with Adam]
+- Thamer Elsadek: [@Drakooz](https://github.com/Drakooz)
+- Salif Sylla: [@drazox730](https://github.com/drazox730)
+- Adam Bensidi: [@adam47acc-debug](https://github.com/adam47acc-debug)
 
 ## 3. Project Stream
 
