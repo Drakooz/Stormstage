@@ -15,14 +15,24 @@ ROOT = Path(__file__).resolve().parent
 REPLAY = ROOT / "data" / "processed" / "replay"
 
 STORM_DAYS = tuple(sorted(p.name for p in REPLAY.iterdir() if p.is_dir())) if REPLAY.exists() else ()
-LABEL_TO_KEY = {"Fixed staging": "fixed", "Fixed yards (naive)": "yards", "Historical hotspots": "hotspot",
-                "StormStage": "stormstage"}
+# Shared names (B results, C app, README):
+#   "Fixed yards (naive)"        primary naive baseline
+#   "Best fixed plan"            stronger secondary baseline
+#   "StormStage (same 6 trucks)" same-fleet StormStage
+#   "StormStage + on-call"       6 trucks + up to 4 on call when the forecast says a surge is coming
+# TEAM DECISION: which StormStage variant the plain label "StormStage" (and the main comparison) means.
+STORMSTAGE_PRIMARY = "stormstage"          # "stormstage" = + on-call, "stormstage_same" = same 6 trucks
+
+LABEL_TO_KEY = {"Fixed yards (naive)": "yards", "Best fixed plan": "fixed", "Historical hotspots": "hotspot",
+                "StormStage (same 6 trucks)": "stormstage_same", "StormStage + on-call": "stormstage"}
 POLICIES = tuple(LABEL_TO_KEY)
-COMPARISON_POLICIES = ("Fixed staging", "StormStage")
+ALIASES = {"Fixed staging": "yards", "StormStage": STORMSTAGE_PRIMARY}   # older names used in app/runbook
+COMPARISON_POLICIES = ("Fixed yards (naive)",
+                       next(k for k, v in LABEL_TO_KEY.items() if v == STORMSTAGE_PRIMARY))
 
 
 def _key(policy):
-    return LABEL_TO_KEY.get(policy, policy)
+    return LABEL_TO_KEY.get(policy) or ALIASES.get(policy, policy)
 
 
 @lru_cache(maxsize=None)
