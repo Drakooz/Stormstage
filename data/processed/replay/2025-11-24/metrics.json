@@ -6,21 +6,21 @@
   "surge_at": 2.0,
   "step_min": 5,
   "policies": {
-    "fixed": {
-      "label": "Fixed staging",
-      "avg_response_min": 24.0,
-      "p90_response_min": 53.7,
-      "pct_within_15": 48.6,
-      "incidents": 72,
-      "relocation_count": 0,
-      "activations": 0,
-      "truck_hours": 144.0
-    },
     "yards": {
       "label": "Fixed yards (naive)",
       "avg_response_min": 24.3,
       "p90_response_min": 53.6,
       "pct_within_15": 40.3,
+      "incidents": 72,
+      "relocation_count": 0,
+      "activations": 0,
+      "truck_hours": 144.0
+    },
+    "fixed": {
+      "label": "Best fixed plan",
+      "avg_response_min": 24.2,
+      "p90_response_min": 53.7,
+      "pct_within_15": 48.6,
       "incidents": 72,
       "relocation_count": 0,
       "activations": 0,
@@ -36,21 +36,31 @@
       "activations": 0,
       "truck_hours": 144.0
     },
-    "stormstage": {
-      "label": "StormStage",
-      "avg_response_min": 10.5,
-      "p90_response_min": 19.2,
-      "pct_within_15": 80.6,
+    "stormstage_same": {
+      "label": "StormStage (same 6 trucks)",
+      "avg_response_min": 24.4,
+      "p90_response_min": 51.4,
+      "pct_within_15": 50.0,
       "incidents": 72,
-      "relocation_count": 8,
+      "relocation_count": 2,
+      "activations": 0,
+      "truck_hours": 144.0
+    },
+    "stormstage": {
+      "label": "StormStage + on-call",
+      "avg_response_min": 10.2,
+      "p90_response_min": 18.8,
+      "pct_within_15": 79.2,
+      "incidents": 72,
+      "relocation_count": 9,
       "activations": 8,
       "truck_hours": 196.0
     },
     "fixed_all": {
       "label": "Fixed, 10 trucks all day",
       "avg_response_min": 9.4,
-      "p90_response_min": 16.8,
-      "pct_within_15": 84.7,
+      "p90_response_min": 18.2,
+      "pct_within_15": 81.9,
       "incidents": 72,
       "relocation_count": 0,
       "activations": 0,

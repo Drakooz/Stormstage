@@ -1,11 +1,13 @@
 day_type,policy,avg_min,p90_min,pct_within_15,truck_hours,moves,activations
 storm,Fixed yards (naive),14.1,27.1,68.2,144.0,0.0,0.0
 storm,Best fixed plan,13.7,26.1,70.9,144.0,0.0,0.0
-storm,Last week's hotspots,15.0,28.5,59.1,144.0,0.0,0.0
-storm,StormStage,9.8,17.2,84.7,171.3,5.8,6.3
-storm,"Fixed, all trucks all day",7.5,13.0,93.8,240.0,0.0,0.0
+storm,Historical hotspots,15.0,28.5,59.1,144.0,0.0,0.0
+storm,StormStage (same 6 trucks),13.8,26.0,71.0,144.0,1.2,0.0
+storm,StormStage + on-call,9.8,17.2,84.8,170.3,5.8,6.0
+storm,"Fixed, all trucks all day",7.5,13.1,93.3,240.0,0.0,0.0
 normal,Fixed yards (naive),9.6,17.1,84.0,144.0,0.0,0.0
 normal,Best fixed plan,8.8,15.0,90.9,144.0,0.0,0.0
-normal,Last week's hotspots,10.8,21.6,70.3,144.0,0.0,0.0
-normal,StormStage,9.2,15.6,86.6,147.0,0.6,3.0
-normal,"Fixed, all trucks all day",6.2,10.1,98.5,240.0,0.0,0.0
+normal,Historical hotspots,10.8,21.6,70.3,144.0,0.0,0.0
+normal,StormStage (same 6 trucks),8.8,15.1,90.2,144.0,0.1,0.0
+normal,StormStage + on-call,8.9,15.1,90.2,147.5,1.0,3.5
+normal,"Fixed, all trucks all day",6.2,10.7,99.0,240.0,0.0,0.0

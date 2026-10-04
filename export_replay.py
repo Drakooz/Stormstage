@@ -10,34 +10,38 @@ import json
 from pathlib import Path
 
 import simulate as S
+from evaluate import BEST_FIXED, NAIVE, SS_ONCALL, SS_SAME, split_days
 from forecast_adapter import make_forecaster
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "data" / "processed" / "replay"
 STEP_MIN = 5
 
-# key -> (simulate policy, trucks on duty, label shown in the app)
+# key -> (simulate policy, trucks on duty, on-call trucks, label shown in the app)
 POLICIES = {
-    "fixed":      ("fixed", S.K, "Fixed staging"),
-    "yards":      ("yards", S.K, "Fixed yards (naive)"),
-    "hotspot":    ("hotspot", S.K, "Historical hotspots"),
-    "stormstage": ("stormstage", S.K, "StormStage"),
-    "fixed_all":  ("fixed", S.K + S.EXTRA, f"Fixed, {S.K + S.EXTRA} trucks all day"),
+    "yards":           ("yards", S.K, 0, NAIVE),                   # primary naive baseline
+    "fixed":           ("fixed", S.K, 0, BEST_FIXED),              # stronger secondary baseline
+    "hotspot":         ("hotspot", S.K, 0, "Historical hotspots"),
+    "stormstage_same": ("stormstage", S.K, 0, SS_SAME),            # same-fleet StormStage
+    "stormstage":      ("stormstage", S.K, S.EXTRA, SS_ONCALL),    # 6 + up to EXTRA on call
+    "fixed_all":       ("fixed", S.K + S.EXTRA, 0, f"Fixed, {S.K + S.EXTRA} trucks all day"),
 }
 
 
 def main(forecast_source="standin", zone_source="grid", days=None):
     days = days or S.DEMO_DAYS
     inc, zones, T = S.setup(zone_source)
-    fc = make_forecaster(forecast_source, inc, zones, holdout_days=S.DEMO_DAYS)
+    holdout = split_days(inc)[-1]          # same held-out days as evaluate.py
+    fc = make_forecaster(forecast_source, inc, zones, holdout_days=holdout)
     (ROOT / "data" / "processed").mkdir(parents=True, exist_ok=True)
     zones[["zone_id", "name", "quadrant", "lat", "lon", "n"]].to_csv(ROOT / "data" / "processed" / "zones_grid.csv", index=False)
     for d in days:
         out = OUT / d
         out.mkdir(parents=True, exist_ok=True)
         metrics = {}
-        for key, (pol, k, label) in POLICIES.items():
-            log, moves, th, trucks = S.simulate(inc, zones, T, d, pol, fc, k=k, return_trucks=True)
+        for key, (pol, k, extra, label) in POLICIES.items():
+            log, moves, th, trucks = S.simulate(inc, zones, T, d, pol, fc, k=k, extra=extra,
+                                                holdout_days=holdout, return_trucks=True)
             log["unit_id"] = log["truck"] + 1
             log.drop(columns="truck").to_csv(out / f"{key}_incidents.csv", index=False)
             S.truck_positions(trucks, zones, d, every_min=STEP_MIN).to_csv(out / f"{key}_trucks.csv", index=False)
