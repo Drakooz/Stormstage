@@ -2,11 +2,14 @@ import pandas as pd
 
 df = pd.read_csv("data/raw/calgary_traffic_incidents_full.csv")
 
-df["START_DT_UTC"] = pd.to_datetime(df["START_DT_UTC"])
+# The raw feed's timestamps are UTC, despite having no offset in their text.
+df["START_DT_UTC"] = pd.to_datetime(
+    df["START_DT_UTC"], format="%Y/%m/%d %I:%M:%S %p", utc=True, errors="raise"
+)
 
 df = df[
-    (df["START_DT_UTC"] >= "2025-01-01") &
-    (df["START_DT_UTC"] < "2026-01-01")
+    (df["START_DT_UTC"] >= pd.Timestamp("2025-01-01", tz="UTC")) &
+    (df["START_DT_UTC"] < pd.Timestamp("2026-01-01", tz="UTC"))
 ]
 
 df = df[
