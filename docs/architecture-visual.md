@@ -35,7 +35,7 @@ flowchart LR
     B1 --> R
     B2 --> R
     R ==> S
-    S -.->|Measured evidence informs policy revision| V
+    S -.->|Offline policy experiment| E["Team revises same-six policy to on-call / rescores"]
     F -->|Refresh hourly| V
     V ==> P
     S --> D

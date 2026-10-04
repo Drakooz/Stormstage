@@ -42,7 +42,7 @@ The integrated Python pipeline combines Open Calgary reported incidents with ECC
 
 **PLAN → SCORE → REVISE → RESCORE** describes the tested revision from same-six-truck staging to on-call capacity and its measured rescore. **Fixed yards (naive)** is the primary baseline; **Best fixed plan** is the stronger secondary comparator. Evaluation and regenerated replay exports use forecast source `a`.
 
-Streamlit, Pandas, and Pydeck show precomputed positions, incident responses, decision reasons, and full-day metrics in Calgary local time (`America/Edmonton`). The dashboard reads `replay_data`; moving its slider does not rerun optimization or scoring. Play/Pause is a placeholder; forecast visualization and voice are absent. Data preparation and limitations are documented in [data/README.md](../data/README.md).
+Streamlit, Pandas, and Pydeck show precomputed positions, incident responses, decision reasons, and full-day metrics in Calgary local time (`America/Edmonton`). The dashboard reads `replay_data`; moving its slider does not rerun optimization or scoring. Presentation Mode defaults to Feb 4 at 01:00, with a manual timeline, time-correct fleet cards, operations map, decision explanation, response/capacity results, aggregate evidence, and the tested policy-revision strip. Explorer Mode retains all six policies, detailed tables, decisions, and comparison maps. Forecast intensity and voice controls are not implemented. Data preparation and limitations are documented in [data/README.md](../data/README.md).
 
 ### Challenges and evidence limits
 
@@ -52,7 +52,17 @@ A training-exclusion discrepancy remains: `forecast.py` explicitly reserves Feb 
 
 ## 7. Screenshots
 
-[FINAL SCREENSHOTS: attach 2–5 captioned PNG/JPG/GIF images, each ≤10 MB under the recorded submission requirements. Show capacity/staging, activation reasons, and results. Identify day, inspected commit/run provenance, forecast source `a`, and WEATHER-DRIVEN PRECOMPUTED REPLAY. No final assets are supplied yet.]
+Actual running-app captures, forecast source `a`, Feb 4, 2025 at 01:00 Calgary time. The result bands are completed full-day/aggregate simulation outcomes. [Asset provenance](../final_demo_assets/README.md) identifies the source commit and capture checks.
+
+![Presentation overview — recorded six-to-ten activation and actual operations map](../final_demo_assets/01_stormstage_overview.png)
+
+![Activation evidence — 2.4× normal, threshold 2.0×, four on-call units](../final_demo_assets/02_activation_evidence.png)
+
+![Feb 4 only — 20.1 to 9.8 minutes with 144 to 228 truck-hours](../final_demo_assets/03_demo_day_results.png)
+
+![12 designated storm test days — response and capacity comparison](../final_demo_assets/04_aggregate_results.png)
+
+![Tested policy development — PLAN to SCORE to REVISE to RESCORE](../final_demo_assets/05_strategy_revision.png)
 
 ## 8. Demo Video / Live Site
 
@@ -82,8 +92,8 @@ StormStage + on-call beat Fixed yards on **10 of 12** storm days and Best fixed 
 
 **Feb 4 demo day only:** Fixed yards averaged **20.1 minutes**, versus **9.8** for on-call ([per-day results](../results/test_by_day.csv), [replay metrics](../data/processed/replay/2025-02-04/metrics.json)). The recorded activation is at 01:00 Calgary local time; there are no relocations on that day. Its full-day dashboard cards are independent of the slider and are not the 12-day aggregate.
 
-**Evidence:** inspected local main `ccdcae8`; source `a` evaluation, [response results by day](../results/test_by_day.csv), [Feb 4 action log](../data/processed/replay/2025-02-04/stormstage_actions.csv), and [aggregate results](../results/test_summary.csv). A separately recorded evaluation run ID is not established; the commit identifies the inspected repository snapshot.
+**Evidence:** inspected local main `03d52e6`; source `a` evaluation, [response results by day](../results/test_by_day.csv), [Feb 4 action log](../data/processed/replay/2025-02-04/stormstage_actions.csv), and [aggregate results](../results/test_summary.csv). A separately recorded evaluation run ID is not established; the commit identifies the inspected repository snapshot.
 
 **Limits:** metrics are **simulated replay outcomes, not field-deployment results**. Response-time gains do not establish forecast accuracy, calibrated operational response, customer validation, pricing, or monetary savings. Report zero/negative results honestly and disclose extra capacity. The broader forecast-training exclusion assertion in the result report needs A/B reconciliation as described above.
 
-**Local setup:** Python 3.10+, `pip install -r requirements.txt`, then `streamlit run app.py`. Clean-clone verification, screenshots/recording, final team review, and judge-access checks remain outstanding; see [submission checklist](submission-checklist.md).
+**Local setup:** Python 3.10+, `python -m pip install -r requirements.txt`, then `python -m streamlit run app.py`. Clean-clone commands/results and actual screenshot provenance are recorded in [final handoff](final-handoff.md). Final team review, any video/live link, and access checks remain team actions; see [submission checklist](submission-checklist.md).

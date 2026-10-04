@@ -1,6 +1,6 @@
 # StormStage submission checklist
 
-Reviewed October 4, 2026 against local main (`ccdcae8`), matching this checkout. A's causal weather-driven forecast, B's measured evaluation/replays, and C's dashboard are integrated. Evaluation and replay exports identify forecast source `a`. Checked items mean repository evidence exists; they do not mean submission approval, field validation, or clean-clone verification. A = Data & Forecast; B = Optimizer & Simulator; C = App, Voice & Pitch Lead.
+Reviewed October 4, 2026 against evidence base `03d52e6`; UI release validation is recorded in [final handoff](final-handoff.md). A's causal weather-driven forecast, B's measured evaluation/replays, and C's dashboard are integrated. Evaluation and replay exports identify forecast source `a`. Checked items mean repository evidence or recorded verification exists; they do not mean submission approval or field validation. A = Data & Forecast; B = Optimizer & Simulator; C = App, Voice & Pitch Lead.
 
 Organizer references carried from the earlier review at organizer commit `fe3d53c`: [README](https://github.com/nagusubra/industry-hackathon-lab/blob/main/README.md), [submission guide](https://github.com/nagusubra/industry-hackathon-lab/blob/main/SUBMISSIONS.md), [issue form](https://github.com/nagusubra/industry-hackathon-lab/blob/main/.github/ISSUE_TEMPLATE/submission.yml), [rules](https://github.com/nagusubra/industry-hackathon-lab/blob/main/RULES.md), and [rubric](https://github.com/nagusubra/industry-hackathon-lab/blob/main/JUDGING_RUBRIC.md).
 
@@ -44,10 +44,10 @@ Organizer references carried from the earlier review at organizer commit `fe3d53
 - [ ] **Team review:** confirm firsthand learnings and challenges; fill the remaining personal-reflection placeholder only with team-confirmed content.
 - [ ] **2–5 screenshots:** PNG/JPG/GIF, ≤10 MB each per the recorded submission requirements. No final assets supplied. Capture maps/tables, activation reason, and results; label day, source `a`, commit, and WEATHER-DRIVEN PRECOMPUTED REPLAY.
 - [ ] **Demo video / live-site URL:** judge-accessible link, video preferably ≤5 minutes. No URL supplied; do not imply a deployed operational system.
-- [ ] **Clean-clone verification:** fresh directory/environment; Python 3.10+, `pip install -r requirements.txt`, `streamlit run app.py`. Record commit, Python version, commands, and outcome. Existing environment and prior tests do not establish a clean-clone setup.
+- [x] **Clean-clone verification:** fresh clone of `839c6a9`, fresh Python 3.14.3 environment, dependency install, data preparation, all 25 tests, import check, and Streamlit/browser launch. Tracked evidence remained unchanged. Exact commands/results are in [final handoff](final-handoff.md).
 - [ ] **Demo rehearsal:** Feb 4, hour 0→1, recorded on-call reason, capacity change, selected-day scores, secondary comparator, then separately labeled 12-day aggregate. No Feb 4 relocation should be invented.
-- [ ] **Backups:** screenshots, recording, diagram, verified results/logs, local data, working environment; test offline table/map fallbacks. No final backup package supplied.
-- [ ] **Presentation limits:** Play/Pause is a placeholder; forecast visualization and voice are absent. Keep the weather-driven replay and simulation labels visible.
+- [x] **Local backup package:** actual screenshots, synchronized architecture diagram, verified results/logs, tracked local replay data, and startup/fallback instructions. A browser check blocking external requests verified local cards, result bands, and the truck table. Map backgrounds still require internet; no recording is supplied.
+- [x] **Presentation limits:** the manual replay slider is functional; no placeholder playback control remains. No forecast heatmap or voice control is claimed. Weather-driven simulation labels and evidence caveats remain visible.
 
 ## FINAL TEAM CHECK
 
