@@ -1,5 +1,4 @@
-%% Final design: current replay/results use B's stand-in forecast.
-%% A's final weather-driven forecast integration and evaluation are pending.
+%% Integrated source a: causal weather-driven forecast and saved replay evidence.
 flowchart LR
     subgraph DATA["DATA"]
         I["Open Calgary<br/>Reported traffic incidents"]
@@ -7,9 +6,9 @@ flowchart LR
     end
 
     subgraph ENGINE["DECISION ENGINE"]
-        F["Forecast next 3 hours<br/>Demand by zone"]
+        F["Causal weather-driven forecast<br/>Next 3 hours by zone"]
         P["PLAN<br/>6 base trucks + up to 4 on-call<br/>Forecast-triggered capacity<br/>Stage near expected demand"]
-        V["REVISE<br/>Capacity + re-staging"]
+        V["REVISE<br/>Capacity policy / hourly staging"]
     end
 
     subgraph EVAL["EVALUATION"]
@@ -20,7 +19,7 @@ flowchart LR
     end
 
     subgraph DASH["DASHBOARD"]
-        D["Streamlit<br/>Precomputed replay evidence"]
+        D["Streamlit<br/>Weather-driven precomputed replay"]
     end
 
     I --> F
@@ -31,8 +30,9 @@ flowchart LR
     B1 --> R
     B2 --> R
     R ==> S
-    S ==>|Conditions change| V
-    V ==>|Refresh hourly| F
+    S -.->|Offline policy experiment| E["Team revises same-six policy to on-call / rescores"]
+    F -->|Refresh hourly| V
+    V ==> P
     S --> D
 
     classDef data fill:#eff6ff,stroke:#2563eb,color:#172554

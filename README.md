@@ -35,7 +35,7 @@ StormStage + on-call lowered simulated average response from **14.1 to 10.6 minu
 
 **Feb 4 demo day only:** Fixed yards (naive) averaged **20.1 minutes**, versus **9.8 minutes** for StormStage + on-call. These full-day values are separate from the 12-day aggregate above; see [per-day results](results/test_by_day.csv) and [demo replay metrics](data/processed/replay/2025-02-04/metrics.json).
 
-**Evidence boundary:** A's forecast trains only on data before the requested UTC decision date. `forecast.py` explicitly reserves Feb 4, Feb 14, and Nov 24, plus each following UTC date. That implementation does not support the broader assertion in `results/RESULTS.md` that all 12 storm and 8 normal evaluation days are excluded from every forecast history. We report designated test-day results with a causal forecast, without claiming complete training exclusion of all evaluation days. The result file is unchanged.
+**Evaluation methodology:** Evaluation uses a causal rolling-origin / out-of-time forecast. For each replay date, A fits only on information available before the requested UTC date. Earlier evaluation dates may become historical training data for later replay dates, so this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. Policy settings were selected on separate tuning days. The 12 storm and 8 normal evaluation dates were not all excluded from A's training.
 
 ---
 
@@ -63,11 +63,16 @@ The integrated weather-driven workflow is below.
 
 ```mermaid
 flowchart LR
-  A[Load incidents and weather] --> B[Forecast incidents per zone]
-  B --> C[Activate on-call capacity / stage active trucks]
-  C --> D[Replay real incidents - score response time]
-  D --> E[Refresh demand / revise capacity and staging / rescore]
-  E --> B
+  I[Open Calgary reported incidents] --> F[Causal next-three-hour forecast]
+  W[ECCC hourly weather] --> F
+  F --> P[Capacity and staging plan / hourly refresh]
+  P --> R[Replay shared incident and dispatch assumptions]
+  B[Fixed yards - primary baseline] --> R
+  I --> R
+  R --> S[Score response and truck-hours]
+  S -. Tested policy development .-> V[Revise same-six policy to on-call / rescore]
+  R --> D[Precomputed replay dashboard]
+  S --> D
 ```
 
 **Fixed yards (naive)** and **Best fixed plan** use 6 trucks. StormStage uses 6 base trucks plus up to 4 on-call trucks. Score the **same incidents** with shared dispatch, travel, and service assumptions, and report truck-hours alongside response times so the capacity trade-off is visible.
@@ -99,8 +104,15 @@ flowchart LR
 ## Start here
 
 1. Open a terminal **in this folder**.
-2. `pip install -r requirements.txt`
-3. `streamlit run app.py`
-4. Pick a storm day and use the hour slider to compare **Fixed yards (naive)** with **StormStage + on-call**. Play/Pause is a placeholder. The policy dropdown also exposes **Best fixed plan**.
+2. Create and activate a virtual environment: `python -m venv .venv` (Windows: `.\.venv\Scripts\Activate.ps1`).
+3. `python -m pip install -r requirements.txt`
+4. `python -m streamlit run app.py`
+5. **Presentation Mode** opens at **Feb 4, 2025, 01:00** with StormStage + on-call. Move **Replay hour** to 00:00 to show six base trucks, then 01:00 for the recorded four-truck activation. At 04:00 the cards show the current fleet and historical trigger; at 22:00 they show the stand-down.
+6. Scroll through the selected-day response/capacity band, 12-day evidence, and **PLAN → SCORE → REVISE → RESCORE**. Technical logs and coordinate tables are collapsed.
+7. **Explorer Mode** provides every exported date and all six policies, detailed tables, decision logs, and optional side-by-side maps.
 
-The app shows **WEATHER-DRIVEN PRECOMPUTED REPLAY** in **Calgary local time (America/Edmonton)**. Metrics come from the selected day's replay exports and are full-day simulated summaries, independent of the hour slider. Play/Pause does not advance time. Backend notes: [B_PLACEMENT_SIMULATOR.md](B_PLACEMENT_SIMULATOR.md); data preparation and limitations: [data/README.md](data/README.md); presentation: [demo runbook](docs/demo-runbook.md). Use **Python 3.10+**. Clean-clone verification remains a submission preparation item.
+The badge identifies a **weather-driven precomputed simulation** in **Calgary local time (America/Edmonton)**. Truck positions are snapshots at the hour's start; reported incidents and decision-log entries extend through that hour's end. Result bands are full-day simulated summaries, independent of the slider. The manual slider navigates saved output. Map backgrounds require internet; local replay data and scores do not.
+
+Use **Python 3.10+**; the release was verified with **Python 3.14.3**. For checks, install `pytest`, run `python -m src.prepare_data` to regenerate the ignored zone-hour intermediate, then `python -m pytest -q`. See [final handoff](docs/final-handoff.md) for clean-clone results and exact commands, [demo runbook](docs/demo-runbook.md) for the presentation, and [judge Q&A](docs/judge-qa.md) for evidence boundaries. Backend notes: [B_PLACEMENT_SIMULATOR.md](B_PLACEMENT_SIMULATOR.md); data preparation: [data/README.md](data/README.md).
+
+UI rendering lives in `app.py`, styles in `dashboard.css`, and read-only state/result calculations in `dashboard_data.py`. Backend algorithms, validated datasets, replay exports, and result numbers are unchanged. Actual dashboard captures are in [final_demo_assets](final_demo_assets/README.md).

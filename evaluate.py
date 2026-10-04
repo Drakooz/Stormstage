@@ -1,9 +1,15 @@
-"""B: tune StormStage on one set of days, then report on days it never saw.
+"""B: select policy settings on tuning days, then report on separate evaluation days.
 
   TUNE  : 5 storm days (ranks 4-8 by incident count) + 8 normal days
   TEST  : the 3 demo storm days + 9 more storm days (>= 40 incidents) + 8 other normal days
-  HOLDOUT (excluded from every forecast history and from the fixed-plan training demand):
+  HOLDOUT (excluded from B's stand-in/nowcast history and fixed-plan training demand):
           all TEST storm days AND all TEST normal days
+
+With forecast source "a", evaluation uses a causal rolling-origin forecast.
+For each replay decision, A fits only on information before the requested UTC date.
+Earlier evaluation dates may become historical training data for later replay dates;
+therefore this is not a single frozen holdout set. A explicitly excludes Feb 4,
+Feb 14, and Nov 24 plus each following UTC date, rather than B's full HOLDOUT set.
 
 Two StormStage variants are reported side by side:
   - StormStage (same 6 trucks): hourly forecast-driven re-staging, no extra trucks (same-fleet comparison)
@@ -133,7 +139,9 @@ def main(forecast_source="standin", zone_source="grid"):
 
 Forecast: `{forecast_source}` · Zones: `{zone_source}` ({len(zones)} zones) · {S.K} trucks on duty · drive and scene model in `common.py`.
 
-**Held out properly.** All {n} test storm days **and** all {len(test_normal)} test normal days are excluded from every forecast history and from the fixed-plan training demand. On-call settings were picked on 5 other storm days + 8 other normal days with a rule fixed in advance. Chosen: call in **{extra}** on-call trucks when the forecast runs **x{surge_at}** normal.
+**Evaluation methodology:** With forecast source `a`, evaluation uses a causal rolling-origin / out-of-time forecast. For each replay decision, the forecast is fit only on information available before the requested UTC date. Earlier evaluation dates may become historical training data for later replay dates; therefore this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. B's full evaluation-day exclusions apply to the stand-in/nowcast history and fixed-plan training demand; A's `forecast()` does not receive that full set.
+
+**Policy selection:** On-call settings were picked on 5 separate tuning storm days + 8 separate tuning normal days with a rule fixed in advance. Chosen: call in **{extra}** on-call trucks when the forecast runs **x{surge_at}** normal.
 
 **Baselines:** {NAIVE} is the primary naive baseline; {BEST_FIXED} is a stronger secondary baseline.
 

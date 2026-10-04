@@ -1,70 +1,51 @@
-# StormStage — timed 5-minute pitch
+# StormStage — five-minute pitch
 
-For Role C — App, Voice & Pitch Lead. Reviewed against local main (`ccdcae8`), [test_summary.csv](../results/test_summary.csv), [RESULTS.md](../results/RESULTS.md), [forecast.py](../forecast.py), and the weather-driven replay exports. No slides are part of this deliverable.
+Use Presentation Mode, Feb 4, 2025. Keep technical details collapsed. Rehearse the script aloud; the timings include clicks and pauses. Pair with the [demo runbook](demo-runbook.md) and [judge Q&A](judge-qa.md).
 
-> StormStage uses 6 base trucks plus up to 4 forecast-triggered on-call trucks. Fixed yards (naive) is the primary baseline; Best fixed plan is the stronger secondary comparator. A's causal weather-driven forecast is integrated, and the dashboard displays WEATHER-DRIVEN PRECOMPUTED REPLAY.
+## 0:00–0:40 — Introduce the problem
 
-**Option A — own problem using public data:** show public-data evidence and **PLAN → SCORE → REVISE → RESCORE**. The intended user is a roadside-assistance dispatcher / Calgary tow operator. Open Calgary reported incidents are **not all collisions or all tow calls**. All response results are **simulated replay outcomes, not field-deployment results**.
+**Say:** “We’re Admest FC, and this is StormStage. It helps a small Calgary tow and roadside fleet explore when to add capacity and where active trucks should wait during winter conditions. Winter incident demand changes, while fixed waiting locations and a fixed fleet do not automatically adapt. Our intended user is a roadside-assistance dispatcher or Calgary tow operator.”
 
-Rubric mapping carried from the [submission checklist](submission-checklist.md): Autonomous Reasoning + Data-Driven Decisions (30%); Real Industrial Problem & Relevance (20%); Execution & Software Architecture (20%); Commercialization in Industry (15%); Presentation & Demo Quality (15%).
+**Screen:** StormStage title, weather-driven precomputed simulation badge, Presentation Mode. Move Replay hour to 00:00.
 
-## 0:00–0:10 — Introduction
+## 0:40–1:20 — Explain what the evidence changed
 
-**Say:** “We're StormStage. We help a small Calgary tow and roadside fleet explore when to add on-call capacity and where active trucks should wait during winter conditions.”
+**Say:** “Our original hypothesis was to re-stage the same six trucks. We scored it, and it did not improve aggregate average response over the fixed baselines: 14.2 minutes versus 14.1 for Fixed yards and 13.7 for Best fixed plan. We revised the policy to forecast-triggered on-call capacity: six base trucks, plus up to four when the surge signal crosses the threshold. That is our plan, score, revise, rescore story.”
 
-**Screen:** title, tagline, and WEATHER-DRIVEN PRECOMPUTED REPLAY banner.
+**Screen:** six base trucks at 00:00. Mention that the strategy strip below records the tested policy revision.
 
-## 0:10–1:00 — Problem and policy revision
+## 1:20–2:40 — Demonstrate the recorded decision
 
-**Say:** “Our original hypothesis was to re-stage the same six trucks. We tested it, and it did not improve average storm-day response over the fixed baselines. We revised the policy: six base trucks plus up to four on-call trucks, activated when the forecast and recent incidents indicate a surge. The current pipeline combines incident history and weather. Our story is plan, score, revise, rescore; the measured revision is capacity timing, not a claimed same-fleet staging win.”
+**Say:** “This is a saved weather-driven replay for February 4, in Calgary local time. The map uses actual exported truck coordinates and reported incidents. The slider selects saved positions; it does not run the optimizer.”
 
-**Screen:** the citywide zone map, then the architecture visual. Gray dots are zone locations, not forecast intensity. Do not use unsupported incident-count anecdotes.
+**Action:** move Replay hour from 00:00 to 01:00. Pause for the cards and map to update.
 
-## 1:00–1:20 — Intended user
+**Say:** “At 01:00 the recorded signal is 2.4 times normal, above the 2.0 threshold. Four on-call trucks activate, taking the fleet from six to ten. The signal combines weather lift and recent incident activity; the log does not show weather alone caused it. The decision panel explains that event. Truck colors distinguish availability, response, time on scene, and return travel. Units sharing a position share a labeled marker; hover shows their individual statuses. This day has no recorded relocations, so the demonstrated revision is capacity.”
 
-**Say:** “Our intended user is a roadside-assistance dispatcher or Calgary tow operator. We report response time alongside truck-hours to make the capacity trade-off visible. We still need dispatcher feedback; no customer, partner, or deployment is established.”
+**Screen:** activation cards, operations map, and decision explanation. Do not open raw tables during the pitch.
 
-**Screen:** active-unit tables and truck-hour metrics. Naming an organization as a potential user does not establish engagement.
+## 2:40–3:20 — Show the selected-day trade-off
 
-## 1:20–3:10 — Demonstration of the saved replay
+**Action:** scroll to “Did the decision help?”
 
-Follow the [demo runbook](demo-runbook.md); reserve time for clicking and observing. All shown hours are Calgary local time (`America/Edmonton`). Present the saved replay with its source and simulation caveat visible.
+**Say:** “For February 4 alone, simulated average response fell from 20.1 to 9.8 minutes, a 51.2 percent reduction. Capacity rose from 144 to 228 truck-hours. Faster simulated response required additional on-call capacity. These are completed full-day outcomes; they do not change when we move the slider.”
 
-| Time | Say | Screen / action |
-| --- | --- | --- |
-| 1:20–1:35 | “This is a weather-driven precomputed replay for February 4.” | Select `2025-02-04`, `StormStage + on-call`, hour 0; leave Play/Pause on Pause. |
-| 1:35–1:55 | “Both start with six base trucks; Fixed yards is our primary baseline.” | Main comparison and active-unit tables at 00:00. Full-day score cards are not scores for this hour. |
-| 1:55–2:15 | “The slider selects saved positions. It does not rerun the optimizer.” | Advance from hour 0 to hour 1; Play/Pause does not advance time. |
-| 2:15–2:40 | “The recorded surge activates four on-call units.” | Show units 7–10 and the 01:00 activation reason: `incidents forecast x2.4 normal`. The signal combines weather lift and recent incidents; the log does not isolate which caused this event. |
-| 2:40–2:55 | “The demonstrated revision here is extra capacity; this day has no recorded relocations.” | Decision log and status tables. Do not describe dispatch/return movement as re-staging. |
-| 2:55–3:10 | “On this demo day, average simulated response was 20.1 minutes for Fixed yards and 9.8 for on-call.” | Full-day Feb 4 cards. Select `Best fixed plan` and open the selected-policy expander for the secondary comparator; main panels stay unchanged. |
+## 3:20–4:10 — Show the broader evidence and rescore
 
-**Cycle evidence:** connect the recorded capacity revision to the completed replay outcome, then explain the tested policy revision from same-six-truck staging to on-call in the aggregate results. The slider does not provide an initial-hour score or a per-step rescore. No relocation reason should be invented for Feb 4.
+**Action:** show “Across 12 storm test days,” then “The evidence changed our strategy.”
 
-## 3:10–3:40 — Measured results
+**Say:** “Across 12 designated storm test days using a causal forecast, average simulated response fell from 14.1 to 10.6 minutes. The mean daily share reached within 15 minutes rose from 68.2 to 79.3 percent. On-call beat Fixed yards on ten of twelve days and Best fixed plan on eight of twelve. It used 176.5 truck-hours per day. Keeping all ten trucks active all day was faster at 7.5 minutes, but used 240 truck-hours. We expose that trade-off. The strategy strip connects our original six-truck hypothesis to the 14.2-minute score, the on-call revision, and the 10.6-minute rescore.”
 
-**Say:** “Across 12 designated storm test days using a causal forecast, average simulated response fell from 14.1 minutes for Fixed yards to 10.6 for StormStage plus on-call. It beat Fixed yards on 10 of 12 days and Best fixed plan on 8 of 12. On-call used 176.5 truck-hours per day. Keeping all ten trucks active all day was faster, but used 240. These are simulated replay outcomes, not field-deployment results.”
+## 4:10–4:40 — Explain the architecture and limits
 
-**Screen:** the aggregate table in [README](../README.md) or [submission draft](submission-draft.md), clearly labeled **12 designated storm test days**. Feb 4's 20.1 versus 9.8-minute cards are a single-day example, not that aggregate.
+**Say:** “Open Calgary reported incidents and ECCC hourly weather feed a causal next-three-hour forecast, capacity and staging plans, and replay scoring. Streamlit reads the precomputed output. These are simulated replay outcomes, not field-deployment results. Reported incidents are not all crashes or all tow calls. Truck-hours measure capacity use, not proven monetary cost.”
 
-**Supporting values for Q&A:** mean daily p90 was 27.1 minutes for Fixed yards versus 18.9 for on-call; mean daily within-15 share was 68.2% versus 79.3%. Best fixed plan averaged 13.7 minutes. Same-six-truck StormStage averaged 14.2 minutes. Fixed ten trucks all day averaged 7.5 minutes. Sources: [test_summary.csv](../results/test_summary.csv) and [day-win counts](../results/RESULTS.md).
+**Screen:** use the [architecture visual](architecture-visual.md) if needed; otherwise keep the evidence strip visible. Scores inform the tested policy revision, not an online optimizer feedback input.
 
-## 3:40–4:20 — Architecture and evidence limits
+## 4:40–5:00 — Next step
 
-**Say:** “Open Calgary reported incidents and ECCC hourly weather feed a causal next-three-hour forecast. It fits only on data before the requested UTC decision date and allocates citywide demand to historical zone shares. The backend refreshes demand hourly, chooses capacity and staging, and replays shared dispatch assumptions. Streamlit reads saved positions, reasons, and scores in Calgary local time. We have an exclusion-scope discrepancy to resolve: A explicitly reserves the three demo dates and following UTC dates, while the result report claims broader exclusions. We do not claim every evaluation day was fully excluded from A's training.”
+**Say:** “Our next step is dispatcher review of the assumptions and suggested capacity timing, followed by a possible operational pilot. No customer, partner, deployment, pricing, or savings validation exists yet. The evidence helped us revise the problem from moving the same fleet to deciding when to add capacity.”
 
-**Screen:** [architecture visual](architecture-visual.md), then the evidence-boundary note in [architecture specification](architecture-spec.md). Scores inform our policy experiment; they are not an online optimizer feedback input.
+**Q&A boundary:** evaluation uses a causal rolling-origin / out-of-time forecast fitted only on information available before each requested UTC date. Earlier evaluation dates may become historical training data for later replay dates, so this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date; policy settings were selected on separate tuning days. Do not claim all 12 storm and 8 normal evaluation dates were excluded from A's training. Daily aggregate p90 values are means of daily percentiles, not pooled incident percentiles. See [judge Q&A](judge-qa.md).
 
-## 4:20–5:00 — Next step and close
-
-**Say:** “The next step is dispatcher review of the assumptions and suggested capacity timing, followed by a proposed pilot if that review supports it. Customer validation, pricing, and field benefits remain untested. We started with re-staging the same six trucks, scored it, revised to forecast-triggered on-call capacity, and rescored. The evidence supports a response-versus-capacity trade-off under simulation assumptions.”
-
-**Screen:** return to the comparison. Describe the pilot as a proposal, without a customer commitment or monetary-savings claim.
-
-## Delivery checks and Q&A boundaries
-
-- **Results:** report daily-metric averages across designated dates, not pooled incident statistics. Use Fixed yards as primary and Best fixed plan as secondary. On-call has extra capacity; do not call its gain a same-fleet improvement.
-- **Forecast exclusions:** `forecast.py` reserves Feb 4, Feb 14, and Nov 24 (+ following UTC dates). Causality does not establish exclusion of all 12 storm and 8 normal evaluation days; A/B must reconcile the broader wording in `results/RESULTS.md`.
-- **Simulation:** shared nearest-arrival dispatch, straight-line distance × 1.3 at 40 km/h, 30 minutes on scene. Truck-hours do not establish monetary costs or savings.
-- **Presentation:** Play/Pause remains a placeholder; demand visualization and voice are absent. Use the slider and status tables. Prepare screenshots/recording and rehearse offline map fallbacks.
-- **Unresolved submission items:** confirmed GitHub handles, screenshots, demo URL, clean-clone verification, and team review remain in the [checklist](submission-checklist.md). No attributable industry quote is established.
+Before filing, the team must confirm member handles, registration/attestations, firsthand reflections, source usage, and any demo link. The final submission is a team action.

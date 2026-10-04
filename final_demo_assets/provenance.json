@@ -1,0 +1,52 @@
+{
+  "capture_date": "2026-10-04",
+  "date_basis": "User client date, America/Edmonton",
+  "ui_commit": "839c6a96f9390fbee4cee9f334c0baa0ccdfc8a7",
+  "evidence_base": "03d52e6",
+  "forecast_source": "a",
+  "replay_day": "2025-02-04",
+  "replay_hour": "01:00 Calgary local time",
+  "browser": "Isolated headless Microsoft Edge via Playwright",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "actual_running_app": true,
+  "assets": [
+    {
+      "file": "01_stormstage_overview.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 653514,
+      "sha256": "a7d3711ef57740ee306cdffd67e18f6b47ec4651432120d25b5ed986998169d3"
+    },
+    {
+      "file": "02_activation_evidence.png",
+      "width": 704,
+      "height": 410,
+      "bytes": 197370,
+      "sha256": "f3f80fd807a1aa9cc1b070811407c8401682d841c1786bd0c0633b0ea911e4cd"
+    },
+    {
+      "file": "03_demo_day_results.png",
+      "width": 1806,
+      "height": 172,
+      "bytes": 93625,
+      "sha256": "bc04bd77ab4536228df52a4388ae7517d06dcc9999894757c44492473c626ccb"
+    },
+    {
+      "file": "04_aggregate_results.png",
+      "width": 1806,
+      "height": 168,
+      "bytes": 100545,
+      "sha256": "7d38e997e93bb4d844e3a06c124cc965f1beb42cb506c8b65e6cd10e467b93e1"
+    },
+    {
+      "file": "05_strategy_revision.png",
+      "width": 1806,
+      "height": 98,
+      "bytes": 39567,
+      "sha256": "80248643485bd8554e26998d97e6e99e14b7a661063bbca1e995d439d1a7b3cd"
+    }
+  ]
+}

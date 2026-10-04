@@ -1,6 +1,6 @@
 # StormStage architecture specification
 
-Reviewed October 4, 2026 against local main (`ccdcae8`), matching this checkout. Sources: [forecast implementation](../forecast.py), [data documentation](../data/README.md), [aggregate results](../results/test_summary.csv), [result report](../results/RESULTS.md), and tracked backend, replay exports, and dashboard. A's causal weather-driven forecast is integrated, and evaluation/replays use source `a`.
+Reviewed October 4, 2026 against evidence base `03d52e6`; UI release validation is recorded in [final handoff](final-handoff.md). Sources: [forecast implementation](../forecast.py), [data documentation](../data/README.md), [aggregate results](../results/test_summary.csv), [result report](../results/RESULTS.md), and tracked backend, replay exports, and dashboard. A's causal weather-driven forecast is integrated, and evaluation/replays use source `a`.
 
 The adopted policy uses **6 base trucks + up to 4 forecast-triggered on-call trucks**, with active trucks staged near expected demand. The original same-six-truck re-staging hypothesis did not improve aggregate storm-day average response over the fixed baselines. The team revised the policy and rescored it with on-call capacity.
 
@@ -17,7 +17,7 @@ flowchart TD
     P --> R[Replay simulator]
     I -->|Same incidents for every policy| R
     R --> M[SCORE / RESCORE: response and truck-hours]
-    M -.->|Measured evidence informs policy revision| V
+    M -.->|Offline policy experiment| E[Team revises same-six policy to on-call / rescores]
     R -->|Positions / incident responses / reasons| S[Streamlit precomputed replay]
     M -->|Full-day metrics| S
 ```
@@ -35,7 +35,7 @@ A = Data & Forecast; B = Optimizer & Simulator; C = App, Voice & Pitch Lead. Sta
 | Forecast | `forecast.py` fits causal citywide Poisson demand and allocates it to historical zone shares. `forecast_adapter.py` connects source `a` to B. |
 | Placement / hourly revision | `place.py` implements greedy p-median plus swaps and a move penalty; `simulate.py` handles staging, activation, stand-down, and dispatch. |
 | Replay / scoring | `simulate.py`, `evaluate.py`, and `export_replay.py` produce response metrics, capacity use, actions, and timelines. `results/test_summary.csv` reports storm and normal evaluation summaries. |
-| Dashboard | `app.py` reads `replay_data.py` for selected-day positions, decisions, incidents, and full-day metrics. Current labels say WEATHER-DRIVEN PRECOMPUTED REPLAY. Play/Pause is a placeholder; forecast visualization and voice are absent. |
+| Dashboard | `app.py` reads `replay_data.py` for selected-day positions, decisions, incidents, and full-day metrics. Presentation Mode defaults to Feb 4 at 01:00. A manual timeline controls a single operations map, current fleet cards, historical decision context, response/capacity results, aggregate evidence, and the tested policy-revision strip. Explorer retains all replay policies and detailed data. No demand heatmap or voice control is implemented. |
 
 ## Interfaces and assumptions
 
@@ -73,10 +73,10 @@ Values come from [test_summary.csv](../results/test_summary.csv); wins come from
 
 ## Evidence boundaries and remaining work
 
-**Forecast-training exclusion discrepancy:** `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24, plus each following UTC date, and fits only before the requested decision date. `results/RESULTS.md` asserts that every one of the 12 storm and 8 normal evaluation days is excluded from every forecast history. The A implementation does not establish that broader claim. Use designated test-day / causal forecast wording; do not claim complete exclusion of all evaluation days. A/B own reconciliation of the implementation and result report; this documentation cleanup leaves those files unchanged.
+**Evaluation methodology:** Evaluation uses a causal rolling-origin / out-of-time forecast. For each replay date, A fits only on information available before the requested UTC date. Earlier evaluation dates may become historical training data for later replay dates, so this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. Policy settings were selected on separate tuning days. The 12 storm and 8 normal evaluation dates were not all excluded from A's training. [RESULTS.md](../results/RESULTS.md) documents the same methodology limitation.
 
 Reported incidents **are not all collisions or all tow calls**. The city grid uses full-year locations and is not evidence of held-out spatial validation. Blank weather text and empty incident dates have coverage limitations described in [data/README.md](../data/README.md).
 
 Metrics are **simulated replay outcomes, not field-deployment results**. They do not establish forecast accuracy, deployment gains, customer validation, pricing, or monetary savings. The intended user is a roadside-assistance dispatcher / Calgary tow operator; no customer, partner, or deployment is established.
 
-Remaining presentation/submission work includes clean-clone verification, screenshots/recording, member-handle confirmation, and rehearsal. Play/Pause, a demand layer, and voice remain absent. Exact source/download/usage-term checks and the exclusion discrepancy still need owner review. See [submission-checklist.md](submission-checklist.md).
+Release validation and actual screenshots are recorded in [final handoff](final-handoff.md). Member-handle confirmation, an optional recording/link, and team rehearsal remain. Demand intensity and voice are not implemented. Exact source/download/usage-term checks still need owner review. See [submission-checklist.md](submission-checklist.md).

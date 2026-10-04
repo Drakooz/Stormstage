@@ -11,7 +11,7 @@ python -m pytest -q                # 12 B tests (incl. the A → B integration t
 
 ## Headline: with A's real forecast (`--forecast a`)
 
-Data: team raw incidents in Calgary time, 2025. **Held out:** all 12 test storm days and all 8 test normal days are excluded from every forecast history and from the fixed-plan training demand. A's model is also causal: it trains only on UTC dates before each decision. On-call settings were re-tuned on 5 other storm days + 8 other normal days, with a rule fixed in advance: call in **4 on-call trucks when the storm factor reaches ×2.0**.
+Data: team raw incidents in Calgary time, 2025. **Evaluation methodology:** A's forecast uses causal rolling-origin / out-of-time evaluation: for each replay decision, it fits only on information available before the requested UTC date. Earlier evaluation dates may become historical training data for later replay dates; therefore this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. All 12 test storm days and all 8 test normal days are excluded from B's stand-in/nowcast history and fixed-plan training demand; A's `forecast()` does not receive that full set. On-call settings were selected on 5 separate tuning storm days + 8 separate tuning normal days, with a rule fixed in advance: call in **4 on-call trucks when the storm factor reaches ×2.0**.
 
 **Storm factor** = the larger of two signals:
 
@@ -52,7 +52,7 @@ Both signals are bounded. The earlier forecast ÷ `baseline_forecast()` divided 
 
 ## Design decision for the team
 
-The original README promises a **same-fleet** comparison (6 trucks, "same number of trucks"). The held-out results say that design does not beat fixed staging, while **adaptive on-call capacity** does, clearly. Options:
+The original README promises a **same-fleet** comparison (6 trucks, "same number of trucks"). The designated evaluation-day results say that design does not beat fixed staging, while **adaptive on-call capacity** does, clearly. Options:
 
 1. **Adopt on-call as the final design** (B's recommendation). Pitch it honestly: "We tested re-staging the same 6 trucks; it ties fixed staging. The data showed the lever is *when to add capacity*, so StormStage calls in on-call trucks before the surge." Update the README challenge and value lines to "6 trucks plus up to 4 on call".
 2. **Keep same-fleet as the headline.** It is honest, but the result is a tie.
@@ -105,13 +105,13 @@ get_zones()                                            # the 179 grid zones the 
 - **`forecast.py` crashes as committed**: `ZONES_PATH` points two folders up. Use `Path(__file__).resolve().parent / "zones.csv"`. The adapter works around it for now.
 - **`zones.csv` covers only downtown** (20 zones; 27% of 2025 incidents fall inside). Consider adopting `data/processed/zones_grid.csv` (179 citywide zones) as `zones.csv`.
 - Make `baseline_forecast()` the real "same hour last week". StormStage's call-in decision is `sum(forecast) / sum(baseline)`, and with the flat stub it never reaches ×2.0.
-- Add `data/processed/weather_hourly.csv` (`timestamp, snowing, temp_c, snow_last_6h`). Never train on the 12 test storm days listed in `evaluate.py`.
+- Add `data/processed/weather_hourly.csv` (`timestamp, snowing, temp_c, snow_last_6h`). For causal rolling-origin evaluation, train only on information before the requested UTC date and retain the explicit demo-date exclusions in `forecast.py`.
 - The upgrade worth showing: a weather-driven forecast that crosses ×2.0 **before** the surge. The stand-in only reacts to the last 3 hours of incidents.
 
 ## Q&A answers (B's area)
 
 - **"Why not just keep 10 trucks on all day?"** It's faster, but it costs 96 extra truck-hours on every storm day *and* every normal day. StormStage + on-call adds about 26 on storm days and about 3.5 on normal days.
 - **"Isn't StormStage just 'more trucks'?"** The extra trucks only come on when the forecast says so: +26 truck-hours on storm days against +96 for keeping all 10 trucks on all day, and +3.5 on normal days. We also report the same-fleet variant, and it ties fixed staging, which is exactly why we added capacity timing.
-- **"Did you tune on the test days?"** No. Settings were chosen on 5 other storm days + 8 other normal days, using a rule set in advance. Every test day, storm and normal, is excluded from all forecast and baseline training (`evaluate.split_days`, covered by a test).
+- **"Did you tune on the test days?"** No. Policy settings were chosen on 5 separate tuning storm days + 8 separate tuning normal days, using a rule set in advance. `evaluate.split_days` supplies all designated evaluation days as exclusions for B's stand-in/nowcast history and fixed-plan training demand. A's forecast instead fits causally before each requested UTC date, with the explicit demo-date exclusions; earlier evaluation dates may enter training for later replay dates.
 - **"Drive times?"** Straight-line km × 1.3 at 40 km/h, with 30 min on scene. Relocating and returning trucks can be re-dispatched from their real interpolated position.
 - **"Why doesn't moving trucks help more?"** Storm-day crashes are spread citywide, so a good static spread is already close to optimal for a fixed fleet. Capacity timing is the lever, and we found it with the data.

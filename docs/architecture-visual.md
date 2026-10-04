@@ -35,7 +35,7 @@ flowchart LR
     B1 --> R
     B2 --> R
     R ==> S
-    S -.->|Measured evidence informs policy revision| V
+    S -.->|Offline policy experiment| E["Team revises same-six policy to on-call / rescores"]
     F -->|Refresh hourly| V
     V ==> P
     S --> D
@@ -58,6 +58,6 @@ StormStage uses Open Calgary reported traffic incidents and ECCC hourly weather 
 
 **Measured revision:** same-six-truck staging averaged 14.2 minutes and did not improve the fixed baselines. With on-call capacity, average storm-day response was 10.6 minutes versus 14.1 for Fixed yards, using 176.5 truck-hours/day versus 240 for keeping ten trucks active all day. The all-ten-truck policy was faster at 7.5 minutes. These are aggregates across 12 designated storm test days ([summary](../results/test_summary.csv)), not the Feb 4 demo-day result of 20.1 versus 9.8 minutes ([per-day results](../results/test_by_day.csv)). This is the **PLAN → SCORE → REVISE → RESCORE** policy story; response scores do not directly trigger hourly replanning.
 
-> **Evidence boundary:** source `a` is integrated and causal: fitting stops before the requested UTC decision date. A explicitly reserves Feb 4, Feb 14, and Nov 24, plus following UTC dates. The broader all-evaluation-days exclusion claim in `results/RESULTS.md` is not established by `forecast.py`; do not repeat it. Metrics are simulated replay outcomes, not field-deployment results. Reported incidents are not all collisions or all tow calls.
+> **Evidence boundary:** source `a` uses causal rolling-origin / out-of-time evaluation, fitting only on information available before each requested UTC date. Earlier evaluation dates may become historical training data for later replay dates; this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. Policy settings were selected on separate tuning days. The 12 storm and 8 normal evaluation dates were not all excluded from A's training. Metrics are simulated replay outcomes, not field-deployment results. Reported incidents are not all collisions or all tow calls.
 
 The inline diagram above is the current judge-facing visual; see [architecture specification](architecture-spec.md) for interfaces and limitations.
