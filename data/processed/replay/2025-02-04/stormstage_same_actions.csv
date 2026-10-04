@@ -1,0 +1,4 @@
+time,action,to_zone,reason,unit_id
+2025-02-04 09:00:00,move,G12_09,"Unit 1 -> zone G12_09 (NE): forecast 0.23 incidents next 3 h, saves ~3.4 expected min (x3.9 normal)",1
+2025-02-04 14:00:00,move,G06_12,"Unit 6 -> zone G06_12 (SE): forecast 0.15 incidents next 3 h, saves ~5.2 expected min (x3.6 normal)",6
+2025-02-04 16:00:00,move,G12_07,"Unit 1 -> zone G12_07 (NW): forecast 0.43 incidents next 3 h, saves ~4.9 expected min (x3.9 normal)",1
