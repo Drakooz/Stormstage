@@ -1,6 +1,6 @@
 # StormStage submission checklist
 
-Reviewed October 3, 2026 against local `main` / branch base `29eaa74`, with the team's verified open PR #3 status incorporated below. Checked items have repository/GitHub evidence, not submission approval. A = Data & Forecast; B = Optimizer & Simulator; C = App, Voice & Pitch Lead. No other teammate work is verified here.
+Reviewed October 3, 2026 against merged `origin/main` (`1668de9`), included in the current checkout. The 2025 incident-cleaning work is now on main; PR #3 is no longer open. Checked items have repository/GitHub evidence, not submission approval. A = Data & Forecast; B = Optimizer & Simulator; C = App, Voice & Pitch Lead. No other teammate work is verified here.
 
 Official sources: organizer [README](https://github.com/nagusubra/industry-hackathon-lab/blob/main/README.md), [submission guide](https://github.com/nagusubra/industry-hackathon-lab/blob/main/SUBMISSIONS.md), [issue form](https://github.com/nagusubra/industry-hackathon-lab/blob/main/.github/ISSUE_TEMPLATE/submission.yml), [rules](https://github.com/nagusubra/industry-hackathon-lab/blob/main/RULES.md), and [rubric](https://github.com/nagusubra/industry-hackathon-lab/blob/main/JUDGING_RUBRIC.md), inspected at organizer commit `fe3d53c`.
 
@@ -17,9 +17,12 @@ Official sources: organizer [README](https://github.com/nagusubra/industry-hacka
 - [x] **Architecture specification / Mermaid data-flow exists:** [architecture-spec.md](architecture-spec.md) documents the intended flow/statuses. The final judge-facing architecture visual still needs C verification/polish before presentation; a finished presentation asset is not established.
 - [x] **Pitch and walkthrough:** [pitch.md](pitch.md) and [demo-runbook.md](demo-runbook.md) exist and distinguish the mock shell from an integrated replay.
 
+- [x] **Open Calgary incident artifacts on main:** `data/raw/calgary_traffic_incidents_full.csv`, the 2025 cleaning script `src/load.py`, and its output `data/processed/incidents_clean.csv` are tracked on merged main. This establishes artifact presence, not validated provenance, reproducibility, or app integration.
+
 ## WAITING ON A
 
-- [ ] **Option A / datasets:** supply Open Calgary reported-incident and ECCC citations, coverage, station ID, download steps, usage terms, and cleaning/time-zone/zone rules. Incident cleaning work exists in open PR #3 but is not yet merged or integrated. It includes `src/load.py`, `data/raw/calgary_traffic_incidents_full.csv`, and `data/processed/incidents_clean.csv`; these are not on main. PR #3 does not establish completed weather/forecast work. `data/README.md` remains absent on inspected main; root zones alone are insufficient.
+- [ ] **Option A / datasets:** supply Open Calgary reported-incident and ECCC citations, coverage, station ID, download steps, usage terms, and cleaning/time-zone/zone rules. Validate the cleaning output and document reproducibility and limitations. `data/README.md` remains absent on inspected main; root zones alone are insufficient. The merged incident artifacts do not establish completed weather/forecast work.
+- [ ] **Incident integration:** connect the cleaned incident output to the real pipeline and Streamlit app; the current app still uses fixtures.
 - [ ] Deliver real `forecast(day, hour, weather)` → `zone_id, expected_incidents`; fix the stub's zone path. Current demand is fake.
 - [ ] With B, validate the demo day/change hours and README's two held-out days. Fixture dates and README counts lack evidence.
 
