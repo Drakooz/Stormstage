@@ -1,0 +1,12 @@
+{
+  "weather_hours": 8760,
+  "missing_temperatures": 8,
+  "incidents": 7015,
+  "zones": 179,
+  "zone_hours": 1568040,
+  "storm_days": 75,
+  "zero_incident_utc_dates": 41,
+  "median_incidents_per_utc_day": 19.0,
+  "timestamp_timezone": "UTC",
+  "storm_rule": "at least one reported snow/ice-pellet hour per UTC date"
+}
