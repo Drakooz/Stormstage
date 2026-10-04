@@ -1,5 +1,5 @@
 {
-  "forecast": "standin",
+  "forecast": "a",
   "zones": "grid",
   "k": 6,
   "extra": 4,
@@ -38,21 +38,21 @@
     },
     "stormstage_same": {
       "label": "StormStage (same 6 trucks)",
-      "avg_response_min": 15.0,
-      "p90_response_min": 28.6,
+      "avg_response_min": 15.6,
+      "p90_response_min": 30.0,
       "pct_within_15": 58.6,
       "incidents": 70,
-      "relocation_count": 4,
+      "relocation_count": 0,
       "activations": 0,
       "truck_hours": 144.0
     },
     "stormstage": {
       "label": "StormStage + on-call",
-      "avg_response_min": 11.4,
-      "p90_response_min": 20.2,
-      "pct_within_15": 81.4,
+      "avg_response_min": 12.3,
+      "p90_response_min": 22.8,
+      "pct_within_15": 74.3,
       "incidents": 70,
-      "relocation_count": 6,
+      "relocation_count": 0,
       "activations": 8,
       "truck_hours": 196.0
     },
