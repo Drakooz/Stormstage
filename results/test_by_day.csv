@@ -1,0 +1,101 @@
+day_type,policy,day,incidents,avg_min,p90_min,pct_within_15,truck_hours,moves,activations
+storm,Fixed yards (naive),2025-02-04,85,20.1,37.7,44.7,144.0,0,0
+storm,Fixed yards (naive),2025-02-14,70,14.2,28.9,70.0,144.0,0,0
+storm,Fixed yards (naive),2025-11-24,72,24.3,53.6,40.3,144.0,0,0
+storm,Fixed yards (naive),2025-12-24,51,11.8,20.3,72.5,144.0,0,0
+storm,Fixed yards (naive),2025-04-22,44,18.5,35.1,54.5,144.0,0,0
+storm,Fixed yards (naive),2025-02-18,43,14.3,32.4,72.1,144.0,0,0
+storm,Fixed yards (naive),2025-03-29,43,13.4,24.3,65.1,144.0,0,0
+storm,Fixed yards (naive),2025-11-28,30,9.3,16.5,86.7,144.0,0,0
+storm,Fixed yards (naive),2025-02-19,41,12.5,24.6,68.3,144.0,0,0
+storm,Fixed yards (naive),2025-11-26,34,11.0,17.6,85.3,144.0,0,0
+storm,Fixed yards (naive),2025-07-15,41,11.2,18.6,70.7,144.0,0,0
+storm,Fixed yards (naive),2025-12-10,34,8.9,15.1,88.2,144.0,0,0
+storm,Best fixed plan,2025-02-04,85,19.2,37.9,43.5,144.0,0,0
+storm,Best fixed plan,2025-02-14,70,15.0,28.4,60.0,144.0,0,0
+storm,Best fixed plan,2025-11-24,72,24.2,53.7,48.6,144.0,0,0
+storm,Best fixed plan,2025-12-24,51,12.1,21.4,74.5,144.0,0,0
+storm,Best fixed plan,2025-04-22,44,17.6,35.5,47.7,144.0,0,0
+storm,Best fixed plan,2025-02-18,43,14.8,34.9,74.4,144.0,0,0
+storm,Best fixed plan,2025-03-29,43,12.5,21.2,65.1,144.0,0,0
+storm,Best fixed plan,2025-11-28,30,8.7,11.7,93.3,144.0,0,0
+storm,Best fixed plan,2025-02-19,41,10.4,20.6,80.5,144.0,0,0
+storm,Best fixed plan,2025-11-26,34,9.3,14.1,94.1,144.0,0,0
+storm,Best fixed plan,2025-07-15,41,11.2,19.2,78.0,144.0,0,0
+storm,Best fixed plan,2025-12-10,34,9.6,14.6,91.2,144.0,0,0
+storm,Last week's hotspots,2025-02-04,85,20.4,34.4,41.2,144.0,0,0
+storm,Last week's hotspots,2025-02-14,70,15.4,29.8,58.6,144.0,0,0
+storm,Last week's hotspots,2025-11-24,72,24.9,58.5,37.5,144.0,0,0
+storm,Last week's hotspots,2025-12-24,51,11.7,22.4,72.5,144.0,0,0
+storm,Last week's hotspots,2025-04-22,44,20.1,35.3,34.1,144.0,0,0
+storm,Last week's hotspots,2025-02-18,43,15.9,33.1,60.5,144.0,0,0
+storm,Last week's hotspots,2025-03-29,43,16.9,31.5,44.2,144.0,0,0
+storm,Last week's hotspots,2025-11-28,30,11.3,20.6,66.7,144.0,0,0
+storm,Last week's hotspots,2025-02-19,41,9.7,19.1,78.0,144.0,0,0
+storm,Last week's hotspots,2025-11-26,34,12.5,21.0,64.7,144.0,0,0
+storm,Last week's hotspots,2025-07-15,41,11.9,21.1,63.4,144.0,0,0
+storm,Last week's hotspots,2025-12-10,34,9.3,15.4,88.2,144.0,0,0
+storm,StormStage,2025-02-04,85,8.6,16.8,85.9,204.0,8,4
+storm,StormStage,2025-02-14,70,11.2,19.7,80.0,200.0,7,8
+storm,StormStage,2025-11-24,72,10.2,18.8,79.2,196.0,9,8
+storm,StormStage,2025-12-24,51,9.1,14.9,90.2,167.0,5,4
+storm,StormStage,2025-04-22,44,8.9,17.0,84.1,164.0,7,4
+storm,StormStage,2025-02-18,43,11.7,23.3,79.1,160.0,5,4
+storm,StormStage,2025-03-29,43,10.7,18.3,74.4,172.0,5,8
+storm,StormStage,2025-11-28,30,9.5,14.2,90.0,160.0,6,4
+storm,StormStage,2025-02-19,41,8.2,14.6,90.2,164.0,5,8
+storm,StormStage,2025-11-26,34,9.0,13.4,94.1,152.0,5,8
+storm,StormStage,2025-07-15,41,11.1,20.3,78.0,164.0,4,8
+storm,StormStage,2025-12-10,34,9.6,14.6,91.2,153.0,4,8
+storm,"Fixed, all trucks all day",2025-02-04,85,8.4,14.7,90.6,240.0,0,0
+storm,"Fixed, all trucks all day",2025-02-14,70,8.4,14.3,94.3,240.0,0,0
+storm,"Fixed, all trucks all day",2025-11-24,72,9.3,16.9,81.9,240.0,0,0
+storm,"Fixed, all trucks all day",2025-12-24,51,7.4,11.1,96.1,240.0,0,0
+storm,"Fixed, all trucks all day",2025-04-22,44,8.4,13.8,97.7,240.0,0,0
+storm,"Fixed, all trucks all day",2025-02-18,43,6.7,11.8,95.3,240.0,0,0
+storm,"Fixed, all trucks all day",2025-03-29,43,9.9,16.5,81.4,240.0,0,0
+storm,"Fixed, all trucks all day",2025-11-28,30,6.5,11.5,93.3,240.0,0,0
+storm,"Fixed, all trucks all day",2025-02-19,41,5.6,11.1,97.6,240.0,0,0
+storm,"Fixed, all trucks all day",2025-11-26,34,6.6,10.2,100.0,240.0,0,0
+storm,"Fixed, all trucks all day",2025-07-15,41,7.3,12.4,97.6,240.0,0,0
+storm,"Fixed, all trucks all day",2025-12-10,34,5.8,11.1,100.0,240.0,0,0
+normal,Fixed yards (naive),2025-08-20,19,8.2,17.1,84.2,144.0,0,0
+normal,Fixed yards (naive),2025-09-29,19,10.4,17.9,73.7,144.0,0,0
+normal,Fixed yards (naive),2025-01-08,25,9.8,17.7,84.0,144.0,0,0
+normal,Fixed yards (naive),2025-10-27,21,9.0,19.6,81.0,144.0,0,0
+normal,Fixed yards (naive),2025-01-18,24,7.6,11.9,100.0,144.0,0,0
+normal,Fixed yards (naive),2025-02-08,16,9.7,14.2,87.5,144.0,0,0
+normal,Fixed yards (naive),2025-11-10,23,11.6,22.2,73.9,144.0,0,0
+normal,Fixed yards (naive),2025-09-18,25,10.1,16.4,88.0,144.0,0,0
+normal,Best fixed plan,2025-08-20,19,8.1,15.6,89.5,144.0,0,0
+normal,Best fixed plan,2025-09-29,19,8.8,12.5,94.7,144.0,0,0
+normal,Best fixed plan,2025-01-08,25,10.5,18.5,84.0,144.0,0,0
+normal,Best fixed plan,2025-10-27,21,8.1,14.0,90.5,144.0,0,0
+normal,Best fixed plan,2025-01-18,24,6.9,13.6,100.0,144.0,0,0
+normal,Best fixed plan,2025-02-08,16,9.5,13.6,93.8,144.0,0,0
+normal,Best fixed plan,2025-11-10,23,10.1,18.1,82.6,144.0,0,0
+normal,Best fixed plan,2025-09-18,25,8.1,13.8,92.0,144.0,0,0
+normal,Last week's hotspots,2025-08-20,19,6.0,14.3,89.5,144.0,0,0
+normal,Last week's hotspots,2025-09-29,19,10.3,19.4,73.7,144.0,0,0
+normal,Last week's hotspots,2025-01-08,25,11.0,17.9,68.0,144.0,0,0
+normal,Last week's hotspots,2025-10-27,21,12.0,30.5,71.4,144.0,0,0
+normal,Last week's hotspots,2025-01-18,24,9.8,20.7,66.7,144.0,0,0
+normal,Last week's hotspots,2025-02-08,16,13.2,22.8,56.2,144.0,0,0
+normal,Last week's hotspots,2025-11-10,23,11.8,23.2,65.2,144.0,0,0
+normal,Last week's hotspots,2025-09-18,25,12.4,23.6,72.0,144.0,0,0
+normal,StormStage,2025-08-20,19,9.7,17.6,68.4,144.0,0,0
+normal,StormStage,2025-09-29,19,9.2,13.9,89.5,144.0,1,0
+normal,StormStage,2025-01-08,25,10.6,18.9,84.0,144.0,0,0
+normal,StormStage,2025-10-27,21,8.3,14.0,95.2,144.0,0,0
+normal,StormStage,2025-01-18,24,6.9,13.6,100.0,156.0,0,12
+normal,StormStage,2025-02-08,16,9.5,13.6,93.8,148.0,0,4
+normal,StormStage,2025-11-10,23,11.3,19.4,69.6,148.0,4,4
+normal,StormStage,2025-09-18,25,8.1,13.8,92.0,148.0,0,4
+normal,"Fixed, all trucks all day",2025-08-20,19,5.9,10.5,100.0,240.0,0,0
+normal,"Fixed, all trucks all day",2025-09-29,19,6.2,10.7,100.0,240.0,0,0
+normal,"Fixed, all trucks all day",2025-01-08,25,8.2,11.8,92.0,240.0,0,0
+normal,"Fixed, all trucks all day",2025-10-27,21,5.9,8.8,100.0,240.0,0,0
+normal,"Fixed, all trucks all day",2025-01-18,24,5.9,10.2,100.0,240.0,0,0
+normal,"Fixed, all trucks all day",2025-02-08,16,5.9,9.0,100.0,240.0,0,0
+normal,"Fixed, all trucks all day",2025-11-10,23,6.0,10.1,95.7,240.0,0,0
+normal,"Fixed, all trucks all day",2025-09-18,25,5.4,9.8,100.0,240.0,0,0
