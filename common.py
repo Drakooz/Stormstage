@@ -38,7 +38,8 @@ def load_incidents(path=INCIDENTS) -> pd.DataFrame:
     df["how"] = df["start_dt"].dt.dayofweek * 24 + df["start_dt"].dt.hour  # hour of week
     df = df.sort_values("start_dt").reset_index(drop=True)
     df["incident_id"] = np.arange(len(df))
-    return df[["incident_id", "start_dt", "day", "how", "lat", "lon"]]
+    df["quadrant"] = df["quadrant"].astype(str).str.strip().str.upper()
+    return df[["incident_id", "start_dt", "day", "how", "lat", "lon", "quadrant"]]
 
 
 def grid_zones(inc: pd.DataFrame) -> pd.DataFrame:
@@ -65,6 +66,10 @@ def assign_zones(inc: pd.DataFrame, zones: pd.DataFrame) -> pd.DataFrame:
     inc["dist_km"] = d.min(axis=1)
     zones = zones.copy()
     zones["n"] = zones["zone_id"].map(inc["zone_id"].value_counts()).fillna(0).astype(int)
+    quad = inc.groupby("zone_id")["quadrant"].agg(lambda q: q.mode().iat[0] if len(q) else "")
+    zones["quadrant"] = zones["zone_id"].map(quad).fillna("")
+    zones["name"] = np.where(zones["quadrant"] != "", zones["zone_id"] + " (" + zones["quadrant"] + ")",
+                             zones["zone_id"])
     return inc, zones
 
 

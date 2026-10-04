@@ -1,45 +1,75 @@
-# B: placement + simulator
+# B: placement, simulator, results, replay exports
 
 ```
 pip install -r requirements.txt
-python simulate.py                          # B's stand-in forecast, citywide ~2 km grid (179 zones)
-python simulate.py --forecast a --zones a   # A's forecast() + A's zones.csv
+python simulate.py                 # quick table on the 3 demo days (~3 s)
+python evaluate.py                 # tune on some days, test on others -> results/RESULTS.md (~75 s)
+python export_replay.py            # precompute replays for the app -> data/processed/replay/ (~5 s)
+python -m pytest -q                # 8 sanity tests
+# add  --forecast a --zones a  to any of the first three to use A's forecast() and zones.csv
 ```
 
-| File | What it does | Owner |
-|---|---|---|
-| `forecast.py`, `zones.csv` | A's forecast interface (stub) and zones | A |
-| `common.py` | Load incidents, zones (A's or citywide grid), nearest-zone assignment, drive times, B's stand-in forecast | B |
-| `weather.py` | `weather_for(ts)` → the dict A's `forecast()` takes; reads `data/processed/weather_hourly.csv` when A adds it, calm until then | B (A fills the CSV) |
-| `forecast_adapter.py` | One call shape for the simulator: `fn(now) → (DataFrame[zone_id, expected_incidents], storm_factor)` | B |
-| `place.py` | `place_trucks(demand, T, k, current, move_penalty_min)`: greedy p-median + swap pass, one reason per move | B |
-| `simulate.py` | `simulate(...) → (log, moves, truck_hours)`, `metrics(log)`, 5 policies | B |
-| `data/raw/calgary_traffic_incidents_2025.csv` | Open Calgary Traffic Incidents, 2025 subset (from the hackathon repo, Case 5) | — |
+## Headline (stand-in forecast; rerun `evaluate.py` once A's forecast lands)
+
+Settings were tuned on 5 storm days and 8 normal days. The rule was fixed before testing: call in **4 on-call trucks when the forecast runs ×2.0 normal**. Tested on 12 other storm days (including the 3 demo days) and 8 other normal days:
+
+| Test days | Plan | Avg response | 9 in 10 within | Within 15 min | Truck-hours/day |
+|---|---|---|---|---|---|
+| 12 storm days | Best fixed plan (6 trucks) | 15.1 min | 30.4 min | 66% | 144 |
+| 12 storm days | **StormStage (6 + up to 4 on call)** | **10.8 min** | **21.0 min** | **80%** | **177** |
+| 12 storm days | 10 trucks all day | 8.0 min | 13.8 min | 92% | 240 |
+| 8 normal days | Best fixed plan | 9.3 min | 16.2 min | 87% | 144 |
+| 8 normal days | StormStage | 9.2 min | 16.0 min | 89% | 150 |
+
+- StormStage beat the best fixed plan on **12 of 12** test storm days.
+- On storm days it gets about two-thirds of the benefit of putting 4 more trucks on all day, for about a third of the extra truck-hours (+33 vs +96).
+- On normal days it mostly stays at 6 trucks (+6 truck-hours) and response times are unchanged.
+- **Demo days only (4 Feb, 14 Feb, 24 Nov 2025):** 19.9 → 10.4 min average response; 50% → 82% of incidents reached within 15 minutes.
+
+**Why this design:** moving the same 6 trucks around hour by hour barely beats a good fixed plan, because storm-day crashes stay spread across the city. The forecast earns its keep by timing **when to add capacity**, then placing every truck where expected demand is.
+
+## Files
+
+| File | What it does |
+|---|---|
+| `place.py` | `place_trucks(demand, T, k, current, move_penalty_min)`: greedy p-median + swap pass; one reason per move |
+| `simulate.py` | Replay engine. Trucks follow a timeline (responding → on_scene → returning / relocating) with interpolated positions; nearest-arrival dispatch; 5 policies; `metrics()`, `truck_positions()` |
+| `evaluate.py` | Tune/test split, writes `results/` (RESULTS.md, tuning.csv, test_by_day.csv, test_summary.csv) |
+| `export_replay.py` | Precomputes every demo day × policy into `data/processed/replay/<day>/` |
+| `replay_data.py` | **For C**: drop-in for `mock_data.py` with real numbers |
+| `forecast_adapter.py`, `weather.py` | Plug A's `forecast(day, hour, weather)` in; storm factor = forecast ÷ `baseline_forecast` |
+| `common.py` | Incidents, citywide ~2 km grid (179 zones, named with quadrant), drive times, B's stand-in forecast |
+| `tests/test_b.py` | Placement beats random, move penalty works, every incident served, forecast never peeks at the future, storm day triggers call-ins |
+
+## For C: swap mock_data → replay_data
+
+```python
+from replay_data import (STORM_DAYS, POLICIES, COMPARISON_POLICIES, get_zones,
+                         get_truck_positions, get_metrics, get_decision_log, get_incidents)
+
+get_truck_positions("2025-02-04", "StormStage", hour=15, minute=0)  # unit_id, zone_id, lat, lon, status (5-min steps)
+get_metrics("2025-02-04", "Fixed staging")   # avg_response_min, p90_response_min, pct_within_15, relocation_count, activations, truck_hours
+get_decision_log("2025-02-04", "StormStage", hour=9)   # ["07:00 — Unit 7 called in: incidents forecast x2.1 normal", ...]
+get_incidents("2025-02-04", "StormStage", hour=9)      # time, lat, lon, unit_id, response_min
+get_zones()                                            # the 179 grid zones the replays use
+```
+
+- Policy labels: `"Fixed staging"` (best fixed plan), `"Fixed yards (naive)"`, `"Historical hotspots"`, `"StormStage"`, plus key `"fixed_all"` (10 trucks all day) for the cost comparison.
+- StormStage shows up to 10 units; on-call units appear only while on duty. Colour by `status`.
+- Map centre: the grid covers all of Calgary, so zoom ~10, not 11.
 
 ## For A
 
-- Storm factor with your forecast = `sum(forecast) / sum(baseline_forecast)` for the same hour. Keep `baseline_forecast` as the real "same hour last week" so this ratio means something.
-- `weather_hourly.csv` columns: `timestamp, snowing, temp_c, snow_last_6h` (local time, hourly).
-- Your forecast should use only data before the hour it is called for, and never train on the 3 demo days.
+- **`forecast.py` crashes as committed**: `ZONES_PATH` points two folders up. Use `Path(__file__).resolve().parent / "zones.csv"`. The adapter works around it for now.
+- **`zones.csv` covers only downtown** (20 zones; 27% of 2025 incidents fall inside). Consider adopting `data/processed/zones_grid.csv` (179 citywide zones) as `zones.csv`.
+- Make `baseline_forecast()` the real "same hour last week". StormStage's call-in decision is `sum(forecast) / sum(baseline)`, and with the flat stub it never reaches ×2.0.
+- Add `data/processed/weather_hourly.csv` (`timestamp, snowing, temp_c, snow_last_6h`). Never train on the 12 test storm days listed in `evaluate.py`.
+- The upgrade worth showing: a weather-driven forecast that crosses ×2.0 **before** the surge. The stand-in only reacts to the last 3 hours of incidents.
 
-## For C
+## Q&A answers (B's area)
 
-- `log`: `time, lat, lon, truck, response_min` (incident dots + response counters)
-- `moves`: `time, truck, action (move / activate / stand down), to_zone, reason` (truck animation + voice lines)
-- `metrics(log)`: `avg_min, p90_min, pct_within_15` (results panel); `truck_hours` is the cost side
-
-## Results so far (stand-in forecast, citywide grid, mean of 4 Feb / 14 Feb / 24 Nov 2025)
-
-| Policy | Avg min | 90th pct min | % within 15 min | Truck-hours |
-|---|---|---|---|---|
-| Naive yards, 6 trucks | 19.4 | 40.4 | 53.7 | 144 |
-| Best fixed plan, 6 trucks | 19.7 | 39.6 | 49.8 | 144 |
-| Last week's hotspots, 6 trucks | 20.0 | 38.7 | 45.3 | 144 |
-| **StormStage, 6 + up to 3 on call** | **10.8** | **19.4** | **75.0** | **190** |
-| Fixed, 9 trucks all day | 10.5 | 19.1 | 81.3 | 216 |
-
-Moving the same 6 trucks hour by hour barely beats a good fixed plan, because storm-day incidents stay spread across the city. The win comes from the forecast deciding **when to call in on-call trucks**. That halves response time and matches a 9-truck fleet with about 12% fewer truck-hours. On 6 normal days StormStage mostly stays at 6 trucks (about 152 truck-hours on average vs 144).
-
-## Knobs
-
-`simulate.py`: `K=6`, `EXTRA=3`, `SURGE_AT=1.5`, `MOVE_PENALTY_MIN=3`. `common.py`: 40 km/h, ×1.3 detour, 30 min on scene, grid size.
+- **"Why not just keep 10 trucks on all day?"** It's faster, but it costs 96 extra truck-hours on every storm day *and* every normal day. StormStage adds about 33 on storm days and about 6 on normal days.
+- **"Isn't StormStage just 'more trucks'?"** The extra trucks only come on when the forecast says so. On normal days it stays at 6, and its average response matches the fixed plan (9.2 vs 9.3 min).
+- **"Did you tune on the test days?"** No. Settings were chosen on 5 other storm days + 8 normal days, using a rule set in advance (`evaluate.py`).
+- **"Drive times?"** Straight-line km × 1.3 at 40 km/h, with 30 min on scene. Relocating and returning trucks can be re-dispatched from their real interpolated position.
+- **"Why doesn't moving trucks help more?"** Storm-day crashes are spread citywide, so a good static spread is already close to optimal for a fixed fleet. Capacity timing is the lever, and we found it with the data.

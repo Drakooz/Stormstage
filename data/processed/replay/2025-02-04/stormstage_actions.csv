@@ -1,0 +1,16 @@
+time,action,to_zone,reason,unit_id
+2025-02-04 07:00:00,activate,G11_08,Unit 7 called in: incidents forecast x2.1 normal,7
+2025-02-04 07:00:00,activate,G11_08,Unit 8 called in: incidents forecast x2.1 normal,8
+2025-02-04 07:00:00,activate,G11_08,Unit 9 called in: incidents forecast x2.1 normal,9
+2025-02-04 07:00:00,activate,G11_08,Unit 10 called in: incidents forecast x2.1 normal,10
+2025-02-04 07:00:00,move,G07_13,"Unit 1 -> zone G07_13 (SE): forecast 0.1 incidents next 3 h, saves ~5.9 expected min (x2.1 normal)",1
+2025-02-04 07:00:00,move,G15_13,"Unit 7 -> zone G15_13 (NE): forecast 0.1 incidents next 3 h, saves ~4.4 expected min (x2.1 normal)",7
+2025-02-04 07:00:00,move,G12_10,"Unit 8 -> zone G12_10 (NE): forecast 0.28 incidents next 3 h, saves ~4.0 expected min (x2.1 normal)",8
+2025-02-04 07:00:00,move,G13_06,"Unit 9 -> zone G13_06 (NW): forecast 0.1 incidents next 3 h, saves ~3.4 expected min (x2.1 normal)",9
+2025-02-04 12:00:00,move,G17_09,"Unit 3 -> zone G17_09 (NE): forecast 0.12 incidents next 3 h, saves ~3.1 expected min (x5.0 normal)",3
+2025-02-04 12:00:00,move,G04_08,"Unit 6 -> zone G04_08 (SW): forecast 0.06 incidents next 3 h, saves ~3.5 expected min (x5.0 normal)",6
+2025-02-04 22:00:00,stand down,G15_13,Unit 7 stood down: forecast back to x1.6 normal,7
+2025-02-04 22:00:00,stand down,G12_10,Unit 8 stood down: forecast back to x1.6 normal,8
+2025-02-04 22:00:00,stand down,G13_06,Unit 9 stood down: forecast back to x1.6 normal,9
+2025-02-04 22:00:00,stand down,G11_08,Unit 10 stood down: forecast back to x1.6 normal,10
+2025-02-04 22:00:00,move,G12_08,"Unit 1 -> zone G12_08 (NW): forecast 0.1 incidents next 3 h, saves ~6.1 expected min (x1.6 normal)",1
