@@ -64,3 +64,19 @@ def test_stormstage_calls_in_trucks_on_storm_day(world):
     _, moves, th = S.simulate(inc, zones, T, "2025-02-04", "stormstage", fc)
     assert (moves["action"] == "activate").any()
     assert th > 24 * S.K
+
+
+def test_time_boundary(tmp_path, monkeypatch):
+    import weather
+    from forecast_adapter import local_to_utc
+    # winter: MST = UTC-7; summer: MDT = UTC-6
+    assert local_to_utc("2025-02-04 17:00").hour == 0
+    assert local_to_utc("2025-07-15 17:00").hour == 23
+    f = tmp_path / "w.csv"
+    pd.DataFrame({"timestamp": ["2025-02-05T00:00:00Z", "2025-07-15T23:00:00Z"],
+                  "snowing": [True, False], "temp_c": [-12.0, 24.0],
+                  "snow_last_6h": [True, False]}).to_csv(f, index=False)
+    monkeypatch.setattr(weather, "WEATHER", f)
+    monkeypatch.setattr(weather, "_cache", None)
+    assert weather.weather_for("2025-02-04 17:30")["snowing"] is True      # 00:00 UTC = 17:00 MST
+    assert weather.weather_for("2025-07-15 17:10")["temp_c"] == 24.0        # 23:00 UTC = 17:00 MDT
