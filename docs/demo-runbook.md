@@ -1,135 +1,107 @@
-# StormStage — live demo runbook
+# StormStage — demo runbook
 
-For Role C — App, Voice & Pitch Lead. Pair with the [5-minute pitch](pitch.md); steps 1–8 occupy 1:20–3:10 and step 9 occupies 3:10–3:40.
+For Role C — App, Voice & Pitch Lead. Pair with the [5-minute pitch](pitch.md): steps 1–8 occupy 1:20–3:10 and step 9 occupies 3:10–3:40.
 
-> StormStage uses 6 base trucks plus up to 4 forecast-triggered on-call trucks, staging/re-staging active trucks near expected demand. Fixed yards (naive) is the primary baseline; Best fixed plan is the stronger secondary comparator.
+> **WEATHER-DRIVEN PRECOMPUTED REPLAY.** A's causal forecast is integrated; exports use source `a`. Metrics are simulated replay outcomes, not field-deployment results. Fixed yards (naive) is primary; Best fixed plan is secondary. StormStage uses 6 base trucks plus up to 4 on-call trucks.
 
-## Current state and ownership
+## Current evidence and preparation
 
-Current main (`1081dfa`) includes B's backend and precomputed replay integration. The [app](../app.py) reads [replay_data.py](../replay_data.py) for day/hour-specific positions, incident responses, decisions, and full-day metrics on a 179-zone citywide grid. Play/Pause remains a placeholder; use the hour slider. Forecast visualization and voice are absent.
+Local main (`ccdcae8`) includes the integrated forecast, backend evaluation, and weather-driven replay exports. The dashboard uses `replay_data.py` for saved positions, decisions, incidents, and full-day scores on the citywide grid. Hours are **Calgary local time (America/Edmonton)**. Play/Pause remains a placeholder; demand visualization and voice are absent.
 
-All current B results/replays use the **stand-in forecast**. A's real weather-driven forecast is **not yet integrated**. Keep **PRECOMPUTED / INTERIM** labels visible; current simulated outcomes are not final weather-driven performance. Testing same-six-truck re-staging showed little advantage, leading the team to revise the policy to forecast-triggered on-call capacity.
+1. Launch `streamlit run app.py` with dependencies installed. On Windows with the repository environment: `.\.venv\Scripts\python.exe -m streamlit run app.py`. Check maps, active-unit tables, and the weather-driven banner.
+2. Select `2025-02-04`, `StormStage + on-call`, **hour 0**; leave Pause selected. Advance to **hour 1** to show the actual recorded activation.
+3. Check [Feb 4 actions](../data/processed/replay/2025-02-04/stormstage_actions.csv): units 7–10 activate at 01:00 with `incidents forecast x2.4 normal`. This exceeds the 2.0 policy threshold. The signal is the larger of weather lift and a recent-incident nowcast; the log does not identify which dominated at that hour.
+4. Check [Feb 4 metrics](../data/processed/replay/2025-02-04/metrics.json): no recorded relocations. Demonstrate **capacity revision**, not an invented move. The full-day average response is 20.1 minutes for Fixed yards versus 9.8 for on-call.
+5. Prepare the [aggregate table](../README.md) separately: it summarizes 12 designated storm test days, not Feb 4 alone. Sources are [test_summary.csv](../results/test_summary.csv) and [RESULTS.md](../results/RESULTS.md); per-day values are in [test_by_day.csv](../results/test_by_day.csv).
+6. Prepare screenshots/recording labeled with day, inspected commit, forecast source `a`, and WEATHER-DRIVEN PRECOMPUTED REPLAY. Backup assets and clean-clone verification still need completion.
 
-**A — Data & Forecast** supplies the real forecast and data documentation; **B — Optimizer & Simulator** integrates it and regenerates evaluation/replays; **C — App, Voice & Pitch Lead** verifies the display and presents evidence. Final weather-driven fields remain placeholders until verified.
-
-## Preparation before presenting
-
-1. Launch `streamlit run app.py` from the repository folder with `requirements.txt` installed. With the repository virtual environment on Windows, use `.\.venv\Scripts\python.exe -m streamlit run app.py`. Open Streamlit's local URL and test map rendering.
-2. Confirm comparison panels and active-unit tables load. Fixed yards (naive) has 6 trucks; StormStage + on-call can show up to 10 on-duty trucks. Keep interim labels and metric warnings visible.
-3. For a reproducible **stand-in** walkthrough, select `2025-02-04`, `StormStage + on-call`, and hour 6. Leave Play/Pause on Pause. The recorded 07:00 surge activation is an interim event, not verified weather anticipation.
-4. **Pending A/B:** confirm [FINAL DEMO DAY], [BEFORE CHANGE HOUR], [AFTER CHANGE HOUR], and real weather-driven demand evidence. Do not reuse stand-in event times as final forecast evidence.
-5. **Pending A:** next-three-hour output (`zone_id`, `expected_incidents`) aligned to B's zones. The app has no demand layer; use a labeled backend capture if a verified forecast table is available.
-6. Check activation/move reasons and responses against the selected replay. Match incidents, dispatch, travel, and service assumptions; disclose the capacity difference and report truck-hours.
-7. Prepare backend evidence of **plan → score → revise → rescore**. Full-day cards do not recompute with the slider or supply per-step scores. Final weather-driven cycle/results evidence remains [PENDING].
-8. Prepare screenshots/recording with day, evaluated commit/run ID, and forecast source. Label current captures **PRECOMPUTED / INTERIM — stand-in forecast**. Test offline table/capture fallbacks; final backup assets remain pending.
-
-**Option A — own problem using public data:** present public-data evidence, Fixed yards (naive) as primary naive baseline, Best fixed plan as stronger secondary comparator, and the coded revision/rescore cycle. The intended user is a roadside-assistance dispatcher / Calgary tow operator; AMA roadside is a potential example, not a verified customer. Feedback is pending. Reported incidents are not all collisions or tow requests.
+**PLAN → SCORE → REVISE → RESCORE:** the tested same-six-truck policy did not improve fixed baselines' aggregate average response; the policy was revised to on-call capacity and rescored. Within each replay the backend also refreshes demand and revises capacity/staging hourly. The slider navigates saved output; full-day cards do not compute a score for each selected hour.
 
 ## Step-by-step sequence
 
 ### 1. Open StormStage — 1:20–1:25
 
-**Action:** Show title, tagline, controls, and interim banner.
+**Action:** show title, controls, and WEATHER-DRIVEN PRECOMPUTED REPLAY banner.
 
-**Say:** “StormStage decides when to activate on-call capacity and where to stage active trucks. Today's demonstration is a precomputed stand-in replay; final weather-driven results are pending.”
+**Say:** “StormStage explores when to add on-call capacity and where active trucks should wait. This is a saved weather-driven replay, with simulated outcomes.”
 
-### 2. Select the storm day — 1:25–1:35
+### 2. Select Feb 4 — 1:25–1:35
 
-**Current action:** Select `2025-02-04`, `StormStage + on-call`, and hour 6. The selector changes the replay day; it does not run a forecast or simulator.
+**Action:** choose `2025-02-04`, `StormStage + on-call`, hour 0. The selector reads exports; it does not run a forecast or simulator.
 
-**Final handoff:** [FINAL DEMO DAY] and [BEFORE CHANGE HOUR] remain pending A/B verification after real-forecast integration and regenerated exports.
+### 3. Show the initial capacity and staging — 1:35–1:55
 
-### 3. Show the initial plan — 1:35–1:55
+**Action:** show `Staging comparison — precomputed truck positions` and the unit tables at 00:00. Fixed yards is left; on-call is right.
 
-**Action:** Show `Staging comparison — precomputed truck positions`: Fixed yards (naive) on the left, StormStage + on-call on the right, at the same hour. Use tables if markers overlap.
+**Say:** “Fixed yards keeps six fixed waiting locations. StormStage starts with six base trucks and can call in four more. Fixed waiting locations do not mean trucks stay still during incident response.”
 
-**Say:** “Our primary naive baseline keeps six trucks at fixed waiting locations. StormStage starts with six base trucks and can activate up to four on-call trucks when forecasted demand indicates a surge.”
-
-**Cycle evidence:** identify the initial plan and score from verified backend evidence. Dashboard cards summarize the full day, not this initial hour.
+Do not describe full-day metric cards as a score for this initial hour.
 
 ### 4. Advance the recorded replay — 1:55–2:05
 
-**Action:** Move `Current hour` from 6 to 7 for the stand-in walkthrough. Play/Pause does not advance time.
+**Action:** move `Current hour` from 0 to 1.
 
-**Say:** “The slider selects recorded positions. It does not execute a new optimization.” Final event hours remain [BEFORE CHANGE HOUR] / [AFTER CHANGE HOUR].
+**Say:** “The slider selects recorded positions. Play/Pause is a placeholder; neither control runs a new optimization.”
 
-### 5. Explain the forecast trigger — 2:05–2:15
+### 5. Read the capacity trigger — 2:05–2:15
 
-**Action:** Inspect the activation reason. The 07:00 log on this stand-in day reports demand at x2.2 normal, crossing the current x2.0 trigger.
+**Action:** show the 01:00 activation reason in `Decision log — precomputed replay`.
 
-**Say:** “The stand-in forecast triggers extra capacity here. A's real weather-driven forecast is not yet integrated, so this event does not demonstrate advance warning from weather.”
+**Say:** “Unit 7 is called in at a recorded surge signal of x2.4 normal. The policy compares weather lift and recent incidents, then uses the larger signal. This log alone does not prove advance warning from weather.”
 
-**Pending:** verified final forecast comparison. Gray zone dots show locations, not demand intensity; do not call them a forecast heatmap.
+Gray grid dots are zone locations, not a forecast heatmap.
 
-### 6. Show capacity and staging revision — 2:15–2:40
+### 6. Show the revised capacity — 2:15–2:40
 
-**Action:** Show on-call units 7–10 and recorded relocations. Distinguish staging changes from dispatch, on-scene work, and returning trucks using status colors/columns. Fixed waiting locations do not mean fixed truck positions during incident response.
+**Action:** show on-call units 7–10. Explain status colors and use tables when markers overlap.
 
-**Say:** “StormStage activates on-call capacity and re-stages active trucks near expected demand. Moves use an expected saving and a move penalty.”
+**Say:** “Four on-call units are active after the recorded revision. This Feb 4 replay has no relocations. Other marker movement represents dispatch and return travel, not evidence of re-staging.”
 
-**Cycle evidence:** pair a recorded revision with its verified backend rescore. Changed markers alone do not supply **plan → score → revise → rescore** evidence. Keep [FINAL WEATHER-DRIVEN CYCLE EVIDENCE] pending.
+The backend supports relocation when savings justify the move penalty; do not invent a move for this day.
 
-### 7. Show a one-line decision reason — 2:40–2:55
+### 7. Show the recorded decision reason — 2:40–2:55
 
-**Action:** Keep `Policy` on `StormStage + on-call`; show `Decision log — precomputed replay`. Read an actual activation and move reason; do not invent savings or weather causes.
+**Action:** keep `Policy` on `StormStage + on-call`, read an actual activation reason. The log is cumulative through the selected hour; map positions are snapshots at the hour's start.
 
-The log is cumulative through the selected hour; positions are snapshots at its start. [VALIDATED MOVE REASON] remains pending for the final weather-driven run.
+**Say:** “These are recorded decisions from the integrated run. We can inspect why capacity changed and then compare the completed replay outcomes.”
 
-### 8. Compare policies — 2:55–3:10
+### 8. Compare policies and the demo-day outcome — 2:55–3:10
 
-**Action:** Show main panels and results. Select `Best fixed plan` and open the selected-policy expander for the stronger secondary comparator; main panels remain Fixed yards (naive) versus StormStage + on-call.
+**Action:** show results; select `Best fixed plan` and open the selected-policy expander to inspect the secondary comparator. The two main panels remain Fixed yards versus on-call.
 
-**Say:** “These policies use the same reported incidents and shared simulation assumptions. Both static comparators use six trucks; StormStage can use up to ten. Truck-hours show the cost of extra capacity.”
+**Say:** “The policies replay the same reported incidents under shared assumptions. On February 4 alone, average simulated response was 20.1 minutes for Fixed yards versus 9.8 for on-call. This is one day, not our 12-day aggregate.”
 
-State model limits: straight-line distance × 1.3 at 40 km/h, with 30 minutes on scene. These are simulated outcomes, not field measurements.
+Cards are full-day simulated metrics from `replay_data`, independent of the hour slider. Reported incidents are **not all collisions or all tow calls**.
 
-### 9. End on metrics and pending final results — 3:10–3:40
+### 9. Present the 12-day aggregate — 3:10–3:40
 
-**Current action:** Show `Results — precomputed / interim replay` and its warning. Cards are full-day simulated metrics for the selected day, independent of the slider. Supporting [B results](../results/RESULTS.md) cover 12 held-out storm days and 8 normal days using the stand-in forecast.
+**Action:** switch to the following table in the runbook or README. Do not describe the Feb 4 cards as aggregate results.
 
-**Say today:** “Same-six-truck re-staging showed little advantage, which led us to revise the policy to forecast-triggered on-call capacity. These numbers use the stand-in forecast. Final weather-driven response and truck-hour results remain pending.”
+**Across 12 designated storm test days using a causal forecast**; daily-metric means from [test_summary.csv](../results/test_summary.csv):
 
-**Final handoff — fill only after real-forecast integration and verification:**
+| Policy | Average response (min) | Mean daily p90 (min) | Mean within-15 share (%) | Truck-hours/day |
+| --- | --- | --- | --- | --- |
+| Fixed yards (naive) — primary | 14.1 | 27.1 | 68.2 | 144 |
+| Best fixed plan — secondary | 13.7 | 26.1 | 70.9 | 144 |
+| StormStage (same 6 trucks) | 14.2 | 27.1 | 68.8 | 144 |
+| StormStage + on-call | 10.6 | 18.9 | 79.3 | 176.5 |
+| Fixed 10 trucks all day | 7.5 | 13.1 | 93.3 | 240 |
 
-| Metric | Fixed yards (naive) | Best fixed plan | StormStage + on-call |
-| --- | --- | --- | --- |
-| Average response minutes | [FINAL NAIVE AVG] | [FINAL BEST FIXED AVG] | [FINAL STORMSTAGE AVG] |
-| 90th-percentile response minutes | [FINAL NAIVE P90] | [FINAL BEST FIXED P90] | [FINAL STORMSTAGE P90] |
-| Percent reached within 15 minutes | [FINAL NAIVE WITHIN-15] | [FINAL BEST FIXED WITHIN-15] | [FINAL STORMSTAGE WITHIN-15] |
-| Truck-hours | [FINAL NAIVE TRUCK-HOURS] | [FINAL BEST FIXED TRUCK-HOURS] | [FINAL STORMSTAGE TRUCK-HOURS] |
-| Relocations / on-call activations | [FINAL NAIVE COUNTS] | [FINAL BEST FIXED COUNTS] | [FINAL STORMSTAGE COUNTS] |
+**Say:** “Same-six-truck staging did not improve the baselines' aggregate average response. We revised to on-call capacity and rescored: 10.6 minutes versus 14.1 for Fixed yards. On-call beat Fixed yards on 10 of 12 days and Best fixed plan on 8 of 12. It used 176.5 truck-hours per day versus 240 for ten trucks all day; that all-day policy was faster. These are simulated replay outcomes, not field-deployment results.”
 
-Response differences mean comparator minus StormStage in minutes; within-15 differences mean StormStage minus comparator in percentage points. Report zero/negative outcomes honestly. Keep [HELD-OUT VALIDATION STATUS], [AVG RESPONSE IMPROVEMENT], and [P90 IMPROVEMENT] pending for final weather-driven results. No forecast accuracy or operational deployment benefit is established.
+Wins are from [RESULTS.md](../results/RESULTS.md). Daily p90 averages are not a pooled percentile. Do not claim monetary savings, forecast accuracy, or field benefits from these scores.
 
-**Next:** Continue to architecture and the proposed pilot in the pitch.
+**Training boundary:** A fits before the requested UTC decision date and explicitly reserves Feb 4, Feb 14, and Nov 24 (+ following UTC dates). The broader all-evaluation-days exclusion wording in `results/RESULTS.md` does not match A's implementation. Do not claim all 12 storm and 8 normal days were fully excluded from A's forecast training. A/B own that discrepancy; no result file is changed here.
 
-## Fallbacks
+**Next:** architecture and the proposed dispatcher review/pilot in the pitch.
 
-### If replay display breaks
+## Fallbacks and remaining preparation
 
-- Use the hour slider if verified snapshots still load; it navigates recorded output.
-- Otherwise show a prepared capture of the same run with day/run ID and forecast source visible. Stand-in captures retain interim labels.
-- Without verified captures, explain the workflow and pending final results; do not substitute old mock metrics for replay evidence.
+- **Display failure:** use a verified capture of source `a` with day/commit labels; otherwise show the checked results and explain the saved replay workflow. Do not substitute mock metrics.
+- **No forecast view:** this is the current app. Explain the handoff using the architecture diagram and recorded reason; gray zone dots do not visualize demand.
+- **Voice:** present aloud and use controls manually; voice is not integrated.
+- **Wi-Fi:** a local app can show tables and logs; map backgrounds may need network access. Rehearse offline captures and table fallbacks.
+- **Simulation assumptions:** nearest-arrival dispatch, straight-line distance × 1.3 at 40 km/h, 30 minutes on scene. These are not calibrated field operating times.
+- **Submission work:** screenshots/recording, demo URL, clean-clone verification, confirmed GitHub handles, and team review remain unresolved. Source/usage-term checks and the training-exclusion discrepancy need owner review. See [submission checklist](submission-checklist.md).
 
-### If forecast visualization is unavailable
-
-- This is the current state. Explain the forecast-to-capacity/staging handoff from the README loop and recorded log.
-- Use a verified forecast table if available, labeled as backend output rather than a current app feature.
-- Otherwise state that the real forecast is pending; neither A's stub nor gray zone dots demonstrate real demand predictions.
-
-### If voice fails
-
-- Present aloud, use existing controls manually, and read a recorded reason.
-- Voice is not integrated; this fallback applies to external rehearsal aids or future voice work.
-
-### If Wi-Fi fails
-
-- Continue with the running local app and installed dependencies.
-- Map backgrounds may need network access. Use unit/zone tables, decision logs, and offline captures.
-- Locally saved stand-in results remain interim; offline availability does not make them final weather-driven evidence.
-
-## Handoff assumptions and pending items
-
-A/B must align citywide zones, source UTC and Calgary replay time, processed weather, and the real forecast. B then reruns held-out evaluation/replays; C checks the display and final cycle evidence. `data/README.md` remains absent, and A's forecast stub has a path/coverage mismatch. See [architecture-spec.md](architecture-spec.md) for status and [submission-checklist.md](submission-checklist.md) for owners.
-
-The final design is **6 base trucks + up to 4 forecast-triggered on-call trucks**, with active trucks staged/re-staged from expected demand. [FINAL DEMO DAY], final results, [HELD-OUT VALIDATION STATUS], [INDUSTRY QUOTE], and screenshot/recording backups remain pending. A proposed pilot or subscription is a hypothesis; no customer, partner, or deployment is verified. This documentation task changes no implementation.
+No customer, partner, deployment, attributable industry quote, pricing, or monetary-savings claim is established. The proposed pilot is a next step, not an existing commitment.

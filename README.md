@@ -9,15 +9,33 @@
 
 ## The problem (in plain words)
 
-On a normal day Calgary logs about **20** reported traffic incidents. On a snow day it can be **four times** that - the worst day in the 2025 open data (4 Feb 2025) had **85**.
+Winter weather can push reported incident demand beyond a small fleet's capacity. Open Calgary records represent **reported traffic incidents**, including traffic-signal issues, **not all collisions or all tow calls**.
 
-Tow and roadside trucks usually wait at the same yards all day. When the snow starts, the crashes pile up in a few parts of the city while trucks sit across town. Drivers wait, lanes stay blocked, and more crashes follow.
+StormStage explores when to add on-call capacity and where active tow and roadside trucks should wait. Fixed waiting locations provide the primary comparison; response and capacity trade-offs are tested in simulation.
 
 You are deciding **when to activate on-call capacity and where active trucks should wait, hour by hour**, using incident history and the weather.
 
 **Our challenge:** Forecast demand for the next few hours. Start with **6 base trucks**, activate **up to 4 additional on-call trucks** when forecasted demand indicates a surge, and stage/re-stage active trucks near expected demand. Compare against **Fixed yards (naive)**, with **Best fixed plan** as a stronger secondary comparator, through **plan → score → revise → rescore**.
 
-**Why the design changed:** Testing re-staging with the same six trucks showed little advantage over fixed staging, so the team revised the policy to forecast-triggered on-call capacity. Current [B results](results/RESULTS.md) and app replays use B's **stand-in forecast**. A's real weather-driven forecast is **not yet integrated**; final weather-driven results remain **[PENDING]**.
+**Why the design changed:** The original same-six-truck re-staging hypothesis did **not** improve the fixed baselines on aggregate storm-day average response. The team revised the policy to forecast-triggered on-call capacity. A's causal weather-driven forecast is integrated; the current evaluation and precomputed replays use forecast source `a`.
+
+## Measured weather-driven results
+
+These are **simulated replay outcomes, not field-deployment results**. The following aggregates are means of per-day metrics across **12 designated storm test days using a causal forecast**, from [test_summary.csv](results/test_summary.csv). The p90 column is the mean of daily p90 values, not a pooled incident percentile.
+
+| Policy | Average response (min) | Daily p90 (min) | Within 15 min (%) | Truck-hours/day |
+| --- | --- | --- | --- | --- |
+| Fixed yards (naive) — primary baseline | 14.1 | 27.1 | 68.2 | 144 |
+| Best fixed plan — secondary comparator | 13.7 | 26.1 | 70.9 | 144 |
+| StormStage (same 6 trucks) | 14.2 | 27.1 | 68.8 | 144 |
+| StormStage + on-call | 10.6 | 18.9 | 79.3 | 176.5 |
+| Fixed 10 trucks all day | 7.5 | 13.1 | 93.3 | 240 |
+
+StormStage + on-call lowered simulated average response from **14.1 to 10.6 minutes** against Fixed yards (naive), and beat it on **10 of 12** storm test days; it beat Best fixed plan on **8 of 12** ([win counts](results/RESULTS.md)). Keeping all ten trucks active all day was faster, but used **240 truck-hours/day**, compared with **176.5** for on-call. Truck-hours measure capacity use; they do not establish monetary savings.
+
+**Feb 4 demo day only:** Fixed yards (naive) averaged **20.1 minutes**, versus **9.8 minutes** for StormStage + on-call. These full-day values are separate from the 12-day aggregate above; see [per-day results](results/test_by_day.csv) and [demo replay metrics](data/processed/replay/2025-02-04/metrics.json).
+
+**Evidence boundary:** A's forecast trains only on data before the requested UTC decision date. `forecast.py` explicitly reserves Feb 4, Feb 14, and Nov 24, plus each following UTC date. That implementation does not support the broader assertion in `results/RESULTS.md` that all 12 storm and 8 normal evaluation days are excluded from every forecast history. We report designated test-day results with a causal forecast, without claiming complete training exclusion of all evaluation days. The result file is unchanged.
 
 ---
 
@@ -29,15 +47,15 @@ A roadside-assistance dispatcher or Calgary tow operator is the intended user; A
 
 ## Steps
 
-The final weather-driven workflow is below; current replays use the stand-in forecast.
+The integrated weather-driven workflow is below.
 
 1. Load Open Calgary reported traffic incidents (2025) and ECCC hourly weather for Calgary International. Join on date-hour, keeping UTC source times and Calgary local replay times aligned.
 2. Split the city into zones (about a 2 km grid). Count incidents per zone per hour.
-3. Forecast incidents per zone for the next 3 hours from hour of week + weather (snowing, below 0 °C). Baseline forecast: same hour last week.
+3. Forecast citywide incidents for the next 3 hours with a causal Poisson model using UTC hour of week and current weather, then allocate demand to historical zone shares. Current weather is persisted over the horizon; future observed weather is not read. `baseline_forecast` is a separate prior-week demand reference, not a truck policy.
 4. Start with 6 base trucks; activate up to 4 on-call trucks when forecasted demand indicates a surge. Stage active trucks to cut expected drive time (greedy placement + one swap pass). Primary baseline: **Fixed yards (naive)**. Stronger secondary comparator: **Best fixed plan**.
-5. Replay a real snow day. Nearest free truck goes to each real incident. Score average and 90th-percentile response minutes, and % reached within 15 minutes.
-6. Every hour, use incidents seen so far to refresh the forecast, revise on-call capacity and staging, and move trucks only when the expected saving justifies the move penalty. Log activation and move reasons, then rescore.
-7. Report response metrics and truck-hours against both comparators. B's stand-in evaluation covers 12 held-out storm days and 8 normal days; rerun with A's real forecast before filling **[FINAL WEATHER-DRIVEN RESULTS]**.
+5. Replay recorded storm-day incidents using nearest-arrival dispatch. Score average and 90th-percentile response minutes, and % reached within 15 minutes.
+6. Every hour, refresh weather-driven demand and the surge signal: the larger of weather lift (real-weather forecast versus calm-weather forecast) and a recent-incident nowcast. Revise capacity and staging; relocate only when expected savings justify the move penalty. Record activation, stand-down, and move reasons.
+7. Score the completed replay and compare response metrics and truck-hours across policies on 12 designated storm days and 8 normal days. **PLAN → SCORE → REVISE → RESCORE** also describes the tested policy revision from same-six-truck staging to on-call capacity. The dashboard navigates saved snapshots and full-day scores; it does not run this computation when the slider moves.
 
 ---
 
@@ -52,7 +70,7 @@ flowchart LR
   E --> B
 ```
 
-**Fixed yards (naive)** and **Best fixed plan** use 6 trucks. StormStage uses 6 base trucks plus up to 4 on-call trucks. Score the **same incidents** with shared dispatch, travel, and service assumptions, and report truck-hours alongside response times so the capacity cost is visible.
+**Fixed yards (naive)** and **Best fixed plan** use 6 trucks. StormStage uses 6 base trucks plus up to 4 on-call trucks. Score the **same incidents** with shared dispatch, travel, and service assumptions, and report truck-hours alongside response times so the capacity trade-off is visible.
 
 ---
 
@@ -85,4 +103,4 @@ flowchart LR
 3. `streamlit run app.py`
 4. Pick a storm day and use the hour slider to compare **Fixed yards (naive)** with **StormStage + on-call**. Play/Pause is a placeholder. The policy dropdown also exposes **Best fixed plan**.
 
-The app shows **PRECOMPUTED / INTERIM** stand-in replays. Its metrics are full-day summaries, independent of the hour slider, and are not final weather-driven performance. Backend/evidence notes: [B_PLACEMENT_SIMULATOR.md](B_PLACEMENT_SIMULATOR.md). Final dataset documentation remains pending (`data/README.md` is absent). **Python 3.10+** (3.11 is best).
+The app shows **WEATHER-DRIVEN PRECOMPUTED REPLAY** in **Calgary local time (America/Edmonton)**. Metrics come from the selected day's replay exports and are full-day simulated summaries, independent of the hour slider. Play/Pause does not advance time. Backend notes: [B_PLACEMENT_SIMULATOR.md](B_PLACEMENT_SIMULATOR.md); data preparation and limitations: [data/README.md](data/README.md); presentation: [demo runbook](docs/demo-runbook.md). Use **Python 3.10+**. Clean-clone verification remains a submission preparation item.
