@@ -1,4 +1,4 @@
-"""StormStage dashboard for interim precomputed replays using the stand-in forecast."""
+"""StormStage dashboard for weather-driven precomputed replays."""
 
 import pandas as pd
 import pydeck as pdk
@@ -71,7 +71,7 @@ def show_truck_map(zones: pd.DataFrame, trucks: pd.DataFrame, shared_view: dict[
 def show_metrics(day: str, policy: str) -> None:
     values = get_metrics(day, policy)
     st.subheader(policy)
-    st.caption(f"PRECOMPUTED / INTERIM · {day} · Full-day metrics using the stand-in forecast.")
+    st.caption(f"WEATHER-DRIVEN PRECOMPUTED REPLAY · {day} · Full-day simulated replay metrics.")
     st.metric("Average response time", f"{values['avg_response_min']:.1f} min")
     st.metric("90th percentile response time", f"{values['p90_response_min']:.1f} min")
     st.metric("Percent reached within 15 minutes", f"{values['pct_within_15']:.1f}%")
@@ -86,9 +86,8 @@ def main() -> None:
     st.set_page_config(page_title="StormStage", page_icon="❄️", layout="wide")
     st.title("StormStage")
     st.markdown("Adaptive tow-truck staging for Calgary winter incidents.")
-    st.info("PRECOMPUTED / INTERIM REPLAY: these exports were generated with B's stand-in forecast. "
-            "They are not yet the final weather-driven evaluation. A's final forecast must be "
-            "integrated and the replays regenerated before final performance claims can be made.")
+    st.info("WEATHER-DRIVEN PRECOMPUTED REPLAY: these exports were generated with A's integrated "
+            "weather-driven forecast. Metrics are simulated replay outcomes, not field-deployment results.")
 
     if not STORM_DAYS:
         st.error("No precomputed replay days are available.")
@@ -116,7 +115,7 @@ def main() -> None:
         st.error(f"Unable to load the precomputed replay: {error}")
         st.stop()
 
-    st.caption(f"PRECOMPUTED / INTERIM · {day} · {hour:02d}:00 Calgary local time · Selected policy: {policy}")
+    st.caption(f"WEATHER-DRIVEN PRECOMPUTED REPLAY · {day} · {hour:02d}:00 Calgary local time · Selected policy: {policy}")
     st.subheader("Calgary zones")
     st.map(zones[["lat", "lon"]])
     st.caption(f"{len(zones)} citywide grid zones used by the precomputed replay.")
@@ -141,10 +140,9 @@ def main() -> None:
             show_truck_map(zones, comparison_trucks[name], shared_view)
 
     st.divider()
-    st.subheader("Results — precomputed / interim replay")
+    st.subheader("Results — weather-driven precomputed replay")
     st.warning("Full-day metrics for the selected storm day, independent of the hour slider. "
-               "Generated with the stand-in forecast; these are not final weather-model results "
-               "or evidence of final performance improvement.")
+               "Metrics are simulated replay outcomes, not field-deployment results.")
     for column, name in zip(st.columns(2), COMPARISON_POLICIES):
         with column:
             show_metrics(day, name)
