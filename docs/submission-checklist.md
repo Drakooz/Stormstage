@@ -1,69 +1,59 @@
 # StormStage submission checklist
 
-Reviewed October 3, 2026 against current main (`1081dfa`), matching this checkout. Incident/weather artifacts, B's backend/results, and precomputed app replay integration are on main. Current B results/replays use the **stand-in forecast**; A's real weather-driven forecast is **not yet integrated**. Checked items indicate repository evidence, not submission approval or final performance validation. A = Data & Forecast; B = Optimizer & Simulator; C = App, Voice & Pitch Lead.
+Reviewed October 4, 2026 against local main (`ccdcae8`), matching this checkout. A's causal weather-driven forecast, B's measured evaluation/replays, and C's dashboard are integrated. Evaluation and replay exports identify forecast source `a`. Checked items mean repository evidence exists; they do not mean submission approval, field validation, or clean-clone verification. A = Data & Forecast; B = Optimizer & Simulator; C = App, Voice & Pitch Lead.
 
-Official sources: organizer [README](https://github.com/nagusubra/industry-hackathon-lab/blob/main/README.md), [submission guide](https://github.com/nagusubra/industry-hackathon-lab/blob/main/SUBMISSIONS.md), [issue form](https://github.com/nagusubra/industry-hackathon-lab/blob/main/.github/ISSUE_TEMPLATE/submission.yml), [rules](https://github.com/nagusubra/industry-hackathon-lab/blob/main/RULES.md), and [rubric](https://github.com/nagusubra/industry-hackathon-lab/blob/main/JUDGING_RUBRIC.md), inspected at organizer commit `fe3d53c`.
+Organizer references carried from the earlier review at organizer commit `fe3d53c`: [README](https://github.com/nagusubra/industry-hackathon-lab/blob/main/README.md), [submission guide](https://github.com/nagusubra/industry-hackathon-lab/blob/main/SUBMISSIONS.md), [issue form](https://github.com/nagusubra/industry-hackathon-lab/blob/main/.github/ISSUE_TEMPLATE/submission.yml), [rules](https://github.com/nagusubra/industry-hackathon-lab/blob/main/RULES.md), and [rubric](https://github.com/nagusubra/industry-hackathon-lab/blob/main/JUDGING_RUBRIC.md).
 
-**Deadline: Sunday, October 4, 2026, 12:00 PM MDT (America/Edmonton).** Submit one **Hackathon Submission** issue before close. The form/guide make demo links and additional info optional despite the organizer README's required-package list; include both. Setup verification, results, and backups are team preparation checks beyond the form fields.
+**Recorded deadline: Sunday, October 4, 2026, 12:00 PM MDT (America/Edmonton).** The recorded submission path is one Hackathon Submission issue. The earlier form/guide review treated demo links and additional info as optional despite the README's package list; include both. This cleanup does not file a submission or re-verify organizer/account state.
 
-## READY
+## READY — repository evidence
 
-- [x] **Team name:** Admest FC — recorded in [README](../README.md).
-- [x] **Member names:** Thamer Elsadek, Salif Sylla, Adam Bensidi — recorded in README; handles remain pending below.
-- [x] **Project stream:** Software and Computational Math; **path:** Option A — own problem using public data.
-- [x] **Project title:** StormStage.
-- [x] **Tagline, one line:** “Adaptive tow-truck staging for Calgary winter incidents.” — app text describing the goal.
-- [x] **Public repository:** [Drakooz/Stormstage](https://github.com/Drakooz/Stormstage) — matches `origin`; GitHub reports `isPrivate: false`.
-- [x] **Architecture specification / Mermaid data-flow exists:** [architecture-spec.md](architecture-spec.md) documents the intended flow/statuses. The final judge-facing architecture visual still needs C verification/polish before presentation; a finished presentation asset is not established.
-- [x] **Pitch and walkthrough:** [pitch.md](pitch.md) and [demo-runbook.md](demo-runbook.md) distinguish stand-in replay evidence from pending final weather-driven results.
-- [x] **Final design decision:** 6 base trucks + up to 4 additional on-call trucks, activated when forecasted demand indicates a surge; stage/re-stage active trucks near expected demand. Same-six-truck testing showed little advantage and led to this revision.
-- [x] **Comparator names:** Fixed yards (naive) is the primary naive baseline; Best fixed plan is the stronger secondary comparator.
-- [x] **B backend and interim evidence:** placement, hourly replanning, response logs, positions, reasons, scoring, and [stand-in results](../results/RESULTS.md) are tracked. The app consumes precomputed exports, not a live optimizer.
-- [x] **Raw weather artifacts:** monthly 2025 ECCC UTC CSVs are tracked; this does not establish real weather-forecast integration.
+- [x] **Team:** Admest FC — Thamer Elsadek, Salif Sylla, Adam Bensidi, as recorded in [README](../README.md). Confirmed handles remain unresolved below.
+- [x] **Stream / path:** Software and Computational Math; Option A — own problem using public data.
+- [x] **Title / description:** StormStage — forecast-triggered on-call capacity and adaptive tow-truck staging for Calgary winter incidents.
+- [x] **Repository link:** [Drakooz/Stormstage](https://github.com/Drakooz/Stormstage). Judge-access verification remains a final check.
+- [x] **Architecture:** [specification](architecture-spec.md) and [inline judge-facing visual](architecture-visual.md) describe the integrated pipeline and evidence boundaries.
+- [x] **Pitch / walkthrough:** [pitch](pitch.md) and [demo runbook](demo-runbook.md) contain measured source-`a` results and separate the Feb 4 demo from the storm-test aggregate.
+- [x] **Policy revision:** same-six-truck staging did not improve aggregate average response over fixed baselines; the team revised to 6 base trucks + up to 4 forecast-triggered on-call trucks and rescored.
+- [x] **Comparator order:** Fixed yards (naive) is primary; Best fixed plan is the stronger secondary comparator. Both use six trucks; disclose extra capacity for on-call.
+- [x] **Integrated data / forecast:** processed hourly weather, joined incidents, citywide zones, and `forecast.py` are present; [data/README.md](../data/README.md) documents UTC preparation, causal fitting, and limitations.
+- [x] **Backend / exports / dashboard:** placement, hourly revision, dispatch, reasons, scoring, and regenerated replay exports are tracked. Dashboard metrics come from the selected day's replay; it is not a live optimizer.
+- [x] **Measured storm results:** [test_summary.csv](../results/test_summary.csv) covers 12 designated storm test days: Fixed yards average 14.1 minutes; Best fixed plan 13.7; same-six-truck StormStage 14.2; on-call 10.6. On-call uses 176.5 truck-hours/day; fixed ten trucks all day uses 240 and averages 7.5 minutes.
+- [x] **Day wins:** on-call beats Fixed yards on 10 of 12 storm days and Best fixed plan on 8 of 12 ([RESULTS.md](../results/RESULTS.md)).
+- [x] **Demo evidence:** Feb 4 full-day average is 20.1 minutes for Fixed yards versus 9.8 for on-call; activation is recorded at 01:00 Calgary local time, with no relocations. This is not the 12-day aggregate.
+- [x] **PLAN → SCORE → REVISE → RESCORE:** tested policy revision is supported by same-fleet and on-call results; hourly revisions are logged. Slider snapshots and full-day cards do not establish per-step scores.
 
-- [x] **Open Calgary incident artifacts:** raw/cleaned CSVs and `src/load.py` are tracked. B uses raw incidents via `common.py`; the app displays exported incident responses. Final provenance/reproducibility documentation remains pending.
+## OWNER REVIEW — evidence limitations
 
-## WAITING ON A
+- [ ] **A/B — reconcile training-exclusion wording:** A trains only before the requested UTC decision date and explicitly excludes Feb 4, Feb 14, and Nov 24 (+ following UTC dates). `results/RESULTS.md` asserts broader exclusion of all 12 storm and 8 normal evaluation days. Do not claim complete exclusion of all those dates from A's forecast training. Use “evaluated across 12 designated storm test days using a causal forecast.” Teammate-owned code and result files are unchanged by this cleanup.
+- [ ] **A — source/usage review:** `data/README.md` is present and documents ECCC station identifiers, coverage, preparation, time zones, and limitations. Confirm the exact Open Calgary source/download citation and usage terms for both sources before filing; do not claim this review is complete.
+- [ ] **A/B — traceability review:** confirm evaluated commit/run provenance and shared replay assumptions. Current files identify forecast `a`; documentation cites inspected local main, not a separately recorded evaluation run ID.
+- [ ] **Team — limits:** maintain “simulated replay outcomes, not field-deployment results” and “reported incidents are not all collisions or all tow calls.” Do not imply forecast accuracy, customer validation, pricing, monetary savings, or deployment from response scores.
 
-- [ ] **Option A / datasets:** supply exact Open Calgary/ECCC citations, coverage, station ID, download steps, usage terms, and cleaning/time-zone/zone rules. Validate outputs and document reproducibility/limitations. `data/README.md` remains absent.
-- [ ] Deliver processed hourly weather and real `forecast(day, hour, weather)` → `zone_id, expected_incidents`; fix the stub path and align coverage with B's 179-zone grid. Current replays use B's stand-in demand.
-- [ ] With B, validate [FINAL DEMO DAY], event hours, and [HELD-OUT VALIDATION STATUS] after real-forecast integration. Current stand-in evaluation covers 12 held-out storm days and 8 normal days; it is not final weather-driven evidence.
+## WAITING ON C / TEAM — submission assets
 
-## WAITING ON B
+- [ ] **Confirmed member handles:** contributor usernames do not establish identity. Keep unresolved placeholders in the submission draft.
 
-- [ ] Integrate A's real weather-driven forecast, rerun evaluation, and regenerate replay exports. Preserve stand-in evidence labels until replaced by verified final output.
-- [ ] Verify final **plan → score → revise → rescore** evidence: initial score, hourly capacity/staging revision and reason, revised score. Slider snapshots/full-day cards alone do not establish per-step scores.
-- [ ] **Final weather-driven results table [PENDING]:** Fixed yards (naive), Best fixed plan, and StormStage + on-call for response mean, p90, within-15 share, relocations, activations, and truck-hours. Attach evaluated commit/day/run IDs, logs, forecast source, and assumptions.
-- [ ] Use the **same incidents**, dispatch, travel, and service assumptions. Disclose 6 trucks for both static comparators versus 6 base + up to 4 on-call for StormStage; report truck-hours. Report zero/negative differences honestly.
-
-## WAITING ON C
-
-- [ ] **All members + GitHub handles:** confirm mappings, then format one per line; contributor usernames do not establish identity.
-
-  | Member from README | Confirmed GitHub handle |
+  | Member | Confirmed GitHub handle |
   | --- | --- |
   | Thamer Elsadek | Pending confirmation |
   | Salif Sylla | Pending confirmation |
   | Adam Bensidi | Pending confirmation |
 
-- [ ] **About — inspiration:** winter fleet-staging problem and dispatcher user; avoid unsupported counts.
-- [ ] **About — what we learned:** confirm firsthand reflections; include the measured same-six-truck limitation and policy revision without presenting stand-in numbers as final.
-- [ ] **About — how we built it:** distinguish shipped code from planned pipeline.
-- [ ] **About — challenges:** real forecast, zone coverage, weather/time alignment, demo limitations, and teammate-confirmed challenges. Final team review remains pending.
-- [ ] **Final judge-facing architecture visual:** verify/polish the specification's Mermaid data-flow and component-status labels before presentation; the final visual is not complete.
-- [ ] Verify regenerated weather-driven exports in the dashboard; Play/Pause remains a placeholder. Keep interim labels on current stand-in displays.
-- [ ] **2–5 screenshots:** PNG/JPG/GIF, ≤10 MB each, captioned with run evidence and forecast source. None tracked; current captures must say `PRECOMPUTED / INTERIM — stand-in forecast`.
-- [ ] **Demo video or live-site link:** judge-accessible URL, video preferably ≤5 minutes. None supplied.
-- [ ] **Setup verified from a clean clone:** fresh directory/environment, Python 3.10+, `pip install -r requirements.txt`, `streamlit run app.py`. Record commit/Python/commands/outcome; existing `.venv` is insufficient. Verify the real pipeline once integrated.
-- [ ] **Live demo verification:** rehearse day selection, forecast trigger, on-call activation, staging revision/reason, and scores via runbook; distinguish interim stand-in evidence from final weather-driven evidence.
-- [ ] **Backup demo recording:** capture the validated run with day/run IDs. None tracked.
-- [ ] **Local backup assets:** screenshots, recording, diagram, verified logs/results, data, working environment; test offline/table map fallbacks. No package exists.
+- [x] **About text / results draft:** [submission-draft.md](submission-draft.md) reflects integrated code, the measured limitation and revision, and the response/capacity trade-off.
+- [ ] **Team review:** confirm firsthand learnings and challenges; fill the remaining personal-reflection placeholder only with team-confirmed content.
+- [ ] **2–5 screenshots:** PNG/JPG/GIF, ≤10 MB each per the recorded submission requirements. No final assets supplied. Capture maps/tables, activation reason, and results; label day, source `a`, commit, and WEATHER-DRIVEN PRECOMPUTED REPLAY.
+- [ ] **Demo video / live-site URL:** judge-accessible link, video preferably ≤5 minutes. No URL supplied; do not imply a deployed operational system.
+- [ ] **Clean-clone verification:** fresh directory/environment; Python 3.10+, `pip install -r requirements.txt`, `streamlit run app.py`. Record commit, Python version, commands, and outcome. Existing environment and prior tests do not establish a clean-clone setup.
+- [ ] **Demo rehearsal:** Feb 4, hour 0→1, recorded on-call reason, capacity change, selected-day scores, secondary comparator, then separately labeled 12-day aggregate. No Feb 4 relocation should be invented.
+- [ ] **Backups:** screenshots, recording, diagram, verified results/logs, local data, working environment; test offline table/map fallbacks. No final backup package supplied.
+- [ ] **Presentation limits:** Play/Pause is a placeholder; forecast visualization and voice are absent. Keep the weather-driven replay and simulation labels visible.
 
 ## FINAL TEAM CHECK
 
-- [ ] Confirm names/handles, registration, original work, one submission, and rules/Code of Conduct agreement. Registration is unverified.
-- [ ] Confirm Option A stream fit, cited public data, named intended user (**roadside-assistance dispatcher / Calgary tow operator**), baseline result, and coded revision. Industry feedback is encouraged, not mandatory; no actual user engagement, customer, partner, or quote is verified.
-- [ ] Review all form fields, ≤3-line/~280-character tagline, setup, architecture, final metric placeholders, and judge access; preserve interim labels.
-- [ ] Rehearse **5-minute pitch + 3-minute Q&A**, test backups; distinguish reported incidents from all collisions and stand-in outcomes from final weather-driven results.
-- [ ] Resolve the [remaining integration blockers](architecture-spec.md) with A/B/C; this task changes documentation only.
-- [ ] **Submission issue filed before deadline:** designate author; use [Hackathon Submission](https://github.com/nagusubra/industry-hackathon-lab/issues/new?template=submission.yml). Record URL/timestamp and resolve validator `needs-fix` feedback before lock. Only the author edits the body. Filing remains pending, outside this task.
+- [ ] Confirm names/handles, registration, original work, one submission, rules, and Code of Conduct agreement. Registration is unverified.
+- [ ] Confirm Option A fit, cited public data, intended dispatcher/tow-operator user, primary/secondary baselines, measured results, and coded policy revision. No customer, partner, industry quote, or deployment is established.
+- [ ] Review all form fields, recorded ≤3-line/~280-character tagline constraint, setup, architecture, evidence caveats, and judge access. Preserve genuine unknown handles/assets; final response metrics are filled.
+- [ ] Rehearse the 5-minute pitch and 3-minute Q&A. Distinguish aggregate daily-metric means from the Feb 4 score, capacity use from monetary cost, and simulated results from field gains.
+- [ ] Assign owners for the exclusion discrepancy and source/usage checks without silently editing teammate-owned evidence.
+- [ ] **File before the recorded deadline:** designate author; use [Hackathon Submission](https://github.com/nagusubra/industry-hackathon-lab/issues/new?template=submission.yml). Record URL/timestamp and resolve validator feedback before lock. Only the author edits the body. Filing remains outside this task.

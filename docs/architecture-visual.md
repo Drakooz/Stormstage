@@ -3,8 +3,7 @@
 **PLAN → SCORE → REVISE → RESCORE**
 
 ```mermaid
-%% Final design: current replay/results use B's stand-in forecast.
-%% A's final weather-driven forecast integration and evaluation are pending.
+%% Integrated source a: causal weather-driven forecast and saved replay evidence.
 flowchart LR
     subgraph DATA["DATA"]
         I["Open Calgary<br/>Reported traffic incidents"]
@@ -12,9 +11,9 @@ flowchart LR
     end
 
     subgraph ENGINE["DECISION ENGINE"]
-        F["Forecast next 3 hours<br/>Demand by zone"]
+        F["Causal weather-driven forecast<br/>Next 3 hours by zone"]
         P["PLAN<br/>6 base trucks + up to 4 on-call<br/>Forecast-triggered capacity<br/>Stage near expected demand"]
-        V["REVISE<br/>Capacity + re-staging"]
+        V["REVISE<br/>Capacity policy / hourly staging"]
     end
 
     subgraph EVAL["EVALUATION"]
@@ -25,7 +24,7 @@ flowchart LR
     end
 
     subgraph DASH["DASHBOARD"]
-        D["Streamlit<br/>Precomputed replay evidence"]
+        D["Streamlit<br/>Weather-driven precomputed replay"]
     end
 
     I --> F
@@ -36,8 +35,9 @@ flowchart LR
     B1 --> R
     B2 --> R
     R ==> S
-    S ==>|Conditions change| V
-    V ==>|Refresh hourly| F
+    S -.->|Measured evidence informs policy revision| V
+    F -->|Refresh hourly| V
+    V ==> P
     S --> D
 
     classDef data fill:#eff6ff,stroke:#2563eb,color:#172554
@@ -54,8 +54,10 @@ flowchart LR
     style DASH fill:#fcfaff,stroke:#c4b5fd,color:#3b0764
 ```
 
-StormStage's final design uses Open Calgary reported traffic incidents and ECCC hourly weather to forecast demand by zone for the next three hours. It plans with 6 base trucks plus up to 4 forecast-triggered on-call trucks, staging active trucks near expected demand. Fixed yards (naive), the primary baseline, and Best fixed plan, the secondary comparator, each use 6 trucks and share the same incident replay and scoring assumptions. As conditions change, StormStage refreshes demand hourly, revises capacity and staging, and rescores response performance and truck-hours; Streamlit displays precomputed replay evidence.
+StormStage uses Open Calgary reported traffic incidents and ECCC hourly weather to forecast demand by zone for the next three hours. It plans with 6 base trucks plus up to 4 forecast-triggered on-call trucks. Fixed yards (naive), the primary baseline, and Best fixed plan, the secondary comparator, each use 6 trucks under shared replay assumptions. The backend refreshes demand and revises capacity/staging hourly; completed replay outcomes supply scores. Streamlit displays saved positions, reasons, and full-day metrics in Calgary local time, rather than executing the loop when the slider moves.
 
-> **Evidence status:** Current main replays/results use B's stand-in forecast; A's final weather-driven forecast integration and evaluation are pending.
+**Measured revision:** same-six-truck staging averaged 14.2 minutes and did not improve the fixed baselines. With on-call capacity, average storm-day response was 10.6 minutes versus 14.1 for Fixed yards, using 176.5 truck-hours/day versus 240 for keeping ten trucks active all day. The all-ten-truck policy was faster at 7.5 minutes. These are aggregates across 12 designated storm test days ([summary](../results/test_summary.csv)), not the Feb 4 demo-day result of 20.1 versus 9.8 minutes ([per-day results](../results/test_by_day.csv)). This is the **PLAN → SCORE → REVISE → RESCORE** policy story; response scores do not directly trigger hourly replanning.
 
-[Standalone Mermaid source](architecture-diagram.mmd)
+> **Evidence boundary:** source `a` is integrated and causal: fitting stops before the requested UTC decision date. A explicitly reserves Feb 4, Feb 14, and Nov 24, plus following UTC dates. The broader all-evaluation-days exclusion claim in `results/RESULTS.md` is not established by `forecast.py`; do not repeat it. Metrics are simulated replay outcomes, not field-deployment results. Reported incidents are not all collisions or all tow calls.
+
+The inline diagram above is the current judge-facing visual; see [architecture specification](architecture-spec.md) for interfaces and limitations.
