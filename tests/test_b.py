@@ -96,3 +96,20 @@ def test_same_fleet_variant_never_adds_trucks(world):
     _, moves, th = S.simulate(inc, zones, T, "2025-02-04", "stormstage", fc, extra=0)
     assert th == 24 * S.K
     assert not (moves["action"] == "activate").any()
+
+
+def test_a_forecast_contract_and_storm_signal(world):
+    """A -> B integration: contract shape, zone ids, bounded storm factor, Jan-1 fallback."""
+    pytest.importorskip("forecast")
+    import forecast as A
+    if not hasattr(A, "baseline_forecast") or not Path(getattr(A, "WEATHER_PATH", "x")).exists():
+        pytest.skip("A's real forecast not present on this branch")
+    inc, zones, T, _ = world
+    f = A.forecast("2025-02-04", 23, {"snowing": True, "temp_c": -15.0, "snow_last_6h": True})
+    assert list(f.columns) == ["zone_id", "expected_incidents"]
+    assert set(f["zone_id"]) == set(zones["zone_id"])
+    fc = make_forecaster("a", inc, zones, holdout_days=S.DEMO_DAYS)
+    factors = [fc(pd.Timestamp("2025-02-04") + pd.Timedelta(hours=h))[1] for h in range(24)]
+    assert all(0.4 < x < 10 for x in factors)          # no divide-by-zero blow-ups
+    out, sf = fc(pd.Timestamp("2025-01-01 03:00"))      # no training history -> stand-in fallback
+    assert len(out) == len(zones) and fc.fallbacks
