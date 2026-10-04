@@ -11,20 +11,23 @@ python -m pytest -q                # 8 sanity tests
 
 ## Headline (stand-in forecast; rerun `evaluate.py` once A's forecast lands)
 
+Data: the team raw file `data/raw/calgary_traffic_incidents_full.csv`, **converted from UTC to Calgary time**, filtered to 2025 (7,005 incidents).
+
 Settings were tuned on 5 storm days and 8 normal days. The rule was fixed before testing: call in **4 on-call trucks when the forecast runs ×2.0 normal**. Tested on 12 other storm days (including the 3 demo days) and 8 other normal days:
 
 | Test days | Plan | Avg response | 9 in 10 within | Within 15 min | Truck-hours/day |
 |---|---|---|---|---|---|
-| 12 storm days | Best fixed plan (6 trucks) | 15.1 min | 30.4 min | 66% | 144 |
-| 12 storm days | **StormStage (6 + up to 4 on call)** | **10.8 min** | **21.0 min** | **80%** | **177** |
-| 12 storm days | 10 trucks all day | 8.0 min | 13.8 min | 92% | 240 |
-| 8 normal days | Best fixed plan | 9.3 min | 16.2 min | 87% | 144 |
-| 8 normal days | StormStage | 9.2 min | 16.0 min | 89% | 150 |
+| 12 storm days | Best fixed plan (6 trucks) | 13.7 min | 26.1 min | 71% | 144 |
+| 12 storm days | **StormStage (6 + up to 4 on call)** | **9.8 min** | **17.2 min** | **85%** | **171** |
+| 12 storm days | 10 trucks all day | 7.5 min | 13.0 min | 94% | 240 |
+| 8 normal days | Best fixed plan | 8.8 min | 15.0 min | 91% | 144 |
+| 8 normal days | StormStage | 9.2 min | 15.6 min | 87% | 147 |
 
-- StormStage beat the best fixed plan on **12 of 12** test storm days.
-- On storm days it gets about two-thirds of the benefit of putting 4 more trucks on all day, for about a third of the extra truck-hours (+33 vs +96).
-- On normal days it mostly stays at 6 trucks (+6 truck-hours) and response times are unchanged.
-- **Demo days only (4 Feb, 14 Feb, 24 Nov 2025):** 19.9 → 10.4 min average response; 50% → 82% of incidents reached within 15 minutes.
+- StormStage beat the best fixed plan on **10 of 12** test storm days. The 2 misses were mild days where the fixed plan was already fast: 28 Nov (8.7 vs 9.5 min) and 10 Dec (a tie at 9.6).
+- On the heavy days the gap is large: 4 Feb 19.2 → 8.6 min, 24 Nov 24.2 → 10.2, 22 Apr 17.6 → 8.9.
+- On storm days it gets about two-thirds of the benefit of putting 4 more trucks on all day, for about a quarter of the extra truck-hours (+27 vs +96).
+- On normal days it adds about 3 truck-hours. Response is slightly slower than the best fixed plan (9.2 vs 8.8 min) because it occasionally relocates a truck it didn't need to; say this honestly if asked.
+- **Demo days only (4 Feb, 14 Feb, 24 Nov 2025):** 19.5 → 10.0 min average response; 51% → 82% of incidents reached within 15 minutes.
 
 **Why this design:** moving the same 6 trucks around hour by hour barely beats a good fixed plan, because storm-day crashes stay spread across the city. The forecast earns its keep by timing **when to add capacity**, then placing every truck where expected demand is.
 
@@ -60,6 +63,7 @@ get_zones()                                            # the 179 grid zones the 
 
 ## For A
 
+- **`data/processed/incidents_clean.csv` is in UTC.** Its busiest hours are 22:00-23:00, which is really the 3-5 PM Calgary rush. Convert `START_DT_UTC` to `America/Edmonton` *before* filtering to 2025 or using the hour (see `common.load_incidents`). Otherwise the forecast learns rush hour at the wrong time and storm days start 7 h early.
 - **`forecast.py` crashes as committed**: `ZONES_PATH` points two folders up. Use `Path(__file__).resolve().parent / "zones.csv"`. The adapter works around it for now.
 - **`zones.csv` covers only downtown** (20 zones; 27% of 2025 incidents fall inside). Consider adopting `data/processed/zones_grid.csv` (179 citywide zones) as `zones.csv`.
 - Make `baseline_forecast()` the real "same hour last week". StormStage's call-in decision is `sum(forecast) / sum(baseline)`, and with the flat stub it never reaches ×2.0.
@@ -68,8 +72,8 @@ get_zones()                                            # the 179 grid zones the 
 
 ## Q&A answers (B's area)
 
-- **"Why not just keep 10 trucks on all day?"** It's faster, but it costs 96 extra truck-hours on every storm day *and* every normal day. StormStage adds about 33 on storm days and about 6 on normal days.
-- **"Isn't StormStage just 'more trucks'?"** The extra trucks only come on when the forecast says so. On normal days it stays at 6, and its average response matches the fixed plan (9.2 vs 9.3 min).
+- **"Why not just keep 10 trucks on all day?"** It's faster, but it costs 96 extra truck-hours on every storm day *and* every normal day. StormStage adds about 27 on storm days and about 3 on normal days.
+- **"Isn't StormStage just 'more trucks'?"** The extra trucks only come on when the forecast says so. On normal days it adds about 3 truck-hours, and on storm days it uses +27 truck-hours where putting all 10 trucks on all day takes +96.
 - **"Did you tune on the test days?"** No. Settings were chosen on 5 other storm days + 8 normal days, using a rule set in advance (`evaluate.py`).
 - **"Drive times?"** Straight-line km × 1.3 at 40 km/h, with 30 min on scene. Relocating and returning trucks can be re-dispatched from their real interpolated position.
 - **"Why doesn't moving trucks help more?"** Storm-day crashes are spread citywide, so a good static spread is already close to optimal for a fixed fleet. Capacity timing is the lever, and we found it with the data.

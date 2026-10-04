@@ -9,7 +9,9 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
-INCIDENTS = ROOT / "data" / "raw" / "calgary_traffic_incidents_2025.csv"
+INCIDENTS = ROOT / "data" / "raw" / "calgary_traffic_incidents_full.csv"   # team raw file (times in UTC)
+LOCAL_TZ = "America/Edmonton"
+YEAR = 2025
 A_ZONES = ROOT / "zones.csv"
 
 # ---- fixed assumptions (change only as a team) ----------------------------
@@ -32,13 +34,24 @@ def drive_min(lat1, lon1, lat2, lon2):
 
 
 def load_incidents(path=INCIDENTS) -> pd.DataFrame:
-    df = pd.read_csv(path, parse_dates=["start_dt"])
-    df = df.rename(columns={"latitude": "lat", "longitude": "lon"})
+    """Open Calgary incidents for YEAR in LOCAL Calgary time.
+
+    The raw feed's START_DT_UTC is UTC: convert to America/Edmonton BEFORE filtering the year or
+    using the hour, otherwise rush hour lands at 22:00-23:00 and the storm surge shifts by 6-7 h.
+    """
+    raw = pd.read_csv(path)
+    t = (pd.to_datetime(raw["START_DT_UTC"], format="%Y/%m/%d %I:%M:%S %p", errors="coerce")
+         .dt.tz_localize("UTC").dt.tz_convert(LOCAL_TZ).dt.tz_localize(None))
+    df = pd.DataFrame({"start_dt": t, "lat": pd.to_numeric(raw["Latitude"], errors="coerce"),
+                       "lon": pd.to_numeric(raw["Longitude"], errors="coerce"),
+                       "quadrant": raw["QUADRANT"].astype(str).str.strip().str.upper()})
+    df = df.dropna(subset=["start_dt", "lat", "lon"])
+    df = df[df["start_dt"].dt.year == YEAR]
+    df = df[df["lat"].between(50.8, 51.3) & df["lon"].between(-114.4, -113.8)]   # inside Calgary
+    df = df.sort_values("start_dt").reset_index(drop=True)
     df["day"] = df["start_dt"].dt.normalize()
     df["how"] = df["start_dt"].dt.dayofweek * 24 + df["start_dt"].dt.hour  # hour of week
-    df = df.sort_values("start_dt").reset_index(drop=True)
     df["incident_id"] = np.arange(len(df))
-    df["quadrant"] = df["quadrant"].astype(str).str.strip().str.upper()
     return df[["incident_id", "start_dt", "day", "how", "lat", "lon", "quadrant"]]
 
 
