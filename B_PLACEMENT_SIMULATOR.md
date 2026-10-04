@@ -5,7 +5,7 @@ pip install -r requirements.txt
 python simulate.py                 # quick table on the 3 demo days (~3 s)
 python evaluate.py                 # tune on some days, test on others -> results/RESULTS.md (~75 s)
 python export_replay.py            # precompute replays for the app -> data/processed/replay/ (~5 s)
-python -m pytest -q                # 8 sanity tests
+python -m pytest -q                # 9 sanity tests
 # add  --forecast a --zones a  to any of the first three to use A's forecast() and zones.csv
 ```
 
@@ -30,6 +30,15 @@ Settings were tuned on 5 storm days and 8 normal days. The rule was fixed before
 - **Demo days only (4 Feb, 14 Feb, 24 Nov 2025):** 19.5 → 10.0 min average response; 51% → 82% of incidents reached within 15 minutes.
 
 **Why this design:** moving the same 6 trucks around hour by hour barely beats a good fixed plan, because storm-day crashes stay spread across the city. The forecast earns its keep by timing **when to add capacity**, then placing every truck where expected demand is.
+
+## Time zones (team rule)
+
+Raw data comes in UTC, and A keeps it in UTC. B converts to Calgary local time (`America/Edmonton`, which handles MST and MDT automatically) at the simulator boundary:
+
+- **Incidents:** `common.load_incidents` converts `START_DT_UTC` to Calgary time before filtering to 2025.
+- **Weather:** `weather.py` reads `data/processed/weather_hourly.csv` with **UTC** timestamps (`timestamp` or ECCC's `Date/Time (UTC)`) and converts to Calgary time on read.
+- **A's forecast:** `forecast_adapter.py` converts the simulator's Calgary time to **UTC** before calling A's `forecast(day, hour, weather)` and `baseline_forecast(day, hour)`, so both take UTC day/hour.
+- `tests/test_b.py::test_time_boundary` checks winter (UTC−7) and summer (UTC−6).
 
 ## Files
 
@@ -63,7 +72,7 @@ get_zones()                                            # the 179 grid zones the 
 
 ## For A
 
-- **`data/processed/incidents_clean.csv` is in UTC.** Its busiest hours are 22:00-23:00, which is really the 3-5 PM Calgary rush. Convert `START_DT_UTC` to `America/Edmonton` *before* filtering to 2025 or using the hour (see `common.load_incidents`). Otherwise the forecast learns rush hour at the wrong time and storm days start 7 h early.
+- Keep incidents and weather in UTC (agreed). For the model, consider a **local-hour feature** (`ts.tz_convert("America/Edmonton").hour`): rush hour is fixed in Calgary time but moves an hour in UTC with daylight saving. Filter "2025" on local dates if you want the same storm days as B.
 - **`forecast.py` crashes as committed**: `ZONES_PATH` points two folders up. Use `Path(__file__).resolve().parent / "zones.csv"`. The adapter works around it for now.
 - **`zones.csv` covers only downtown** (20 zones; 27% of 2025 incidents fall inside). Consider adopting `data/processed/zones_grid.csv` (179 citywide zones) as `zones.csv`.
 - Make `baseline_forecast()` the real "same hour last week". StormStage's call-in decision is `sum(forecast) / sum(baseline)`, and with the flat stub it never reaches ×2.0.
