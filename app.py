@@ -1,43 +1,51 @@
-"""First StormStage dashboard shell, using explicitly labeled demo fixtures."""
-
-from pathlib import Path
+"""StormStage dashboard for interim precomputed replays using the stand-in forecast."""
 
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-from mock_data import (
+from replay_data import (
     COMPARISON_POLICIES,
-    DEFAULT_HOUR,
-    MOCK_METRICS,
-    MOCK_STORM_DAYS,
     POLICIES,
-    get_mock_decision_log,
-    get_mock_truck_positions,
+    STORM_DAYS,
+    get_decision_log,
+    get_incidents,
+    get_metrics,
+    get_truck_positions,
+    get_zones,
 )
 
 
-ZONES_PATH = Path(__file__).resolve().parent / "zones.csv"
+DEFAULT_HOUR = 15
+STATUS_COLORS = {
+    "staged": [2, 132, 199],
+    "responding": [220, 38, 38],
+    "on_scene": [245, 158, 11],
+    "returning": [22, 163, 74],
+    "relocating": [147, 51, 234],
+}
 
 
 def load_zones() -> pd.DataFrame:
-    """Read the current repository zone schema without caching teammate data."""
-    zones = pd.read_csv(ZONES_PATH, dtype={"zone_id": str})
+    """Validate the replay grid provided by B's interface."""
+    zones = get_zones()
     required_columns = {"zone_id", "lat", "lon"}
     if not required_columns.issubset(zones.columns):
-        raise ValueError("zones.csv must contain zone_id, lat, and lon columns.")
+        raise ValueError("Replay zones must contain zone_id, lat, and lon columns.")
     zones = zones[["zone_id", "lat", "lon"]].copy()
     if zones.empty or zones.isna().any().any() or zones["zone_id"].duplicated().any():
-        raise ValueError("zones.csv must contain unique zone IDs and complete coordinates.")
+        raise ValueError("Replay zones must contain unique zone IDs and complete coordinates.")
     zones["lat"] = pd.to_numeric(zones["lat"], errors="raise")
     zones["lon"] = pd.to_numeric(zones["lon"], errors="raise")
     if not zones["lat"].between(-90, 90).all() or not zones["lon"].between(-180, 180).all():
-        raise ValueError("zones.csv contains coordinates outside valid latitude/longitude ranges.")
+        raise ValueError("Replay zones contain coordinates outside valid latitude/longitude ranges.")
     return zones
 
 
 def show_truck_map(zones: pd.DataFrame, trucks: pd.DataFrame, shared_view: dict[str, float]) -> None:
     """Fix both comparison cameras to the shared zone-centered viewport."""
+    map_trucks = trucks.copy()
+    map_trucks["color"] = [STATUS_COLORS.get(status, [100, 116, 139]) for status in trucks["status"]]
     st.pydeck_chart(pdk.Deck(
         initial_view_state=pdk.ViewState(**shared_view),
         # A view-level state overrides each chart's retained interactive camera.
@@ -49,94 +57,110 @@ def show_truck_map(zones: pd.DataFrame, trucks: pd.DataFrame, shared_view: dict[
                 get_radius=40, radius_min_pixels=3,
             ),
             pdk.Layer(
-                "ScatterplotLayer", data=trucks[["lat", "lon"]],
-                get_position="[lon, lat]", get_fill_color=[2, 132, 199],
+                "ScatterplotLayer", data=map_trucks,
+                get_position="[lon, lat]", get_fill_color="color",
                 get_radius=140, radius_min_pixels=3,
             ),
         ],
     ))
-    st.caption("Gray: real zone locations · Blue: mock truck positions (overlaps may share a marker).")
-    st.dataframe(trucks[["unit_id", "zone_id"]], hide_index=True, width="stretch")
+    st.caption("Gray: replay zones · Blue: staged · Red: responding · Amber: on scene · "
+               "Green: returning · Purple: relocating. Overlapping trucks may share a marker.")
+    st.dataframe(trucks[["unit_id", "zone_id", "status", "lat", "lon"]], hide_index=True, width="stretch")
 
 
-def show_metrics(policy: str) -> None:
-    values = MOCK_METRICS[policy]
+def show_metrics(day: str, policy: str) -> None:
+    values = get_metrics(day, policy)
     st.subheader(policy)
-    st.caption("MOCK / DEMO — static placeholders, not measured results.")
+    st.caption(f"PRECOMPUTED / INTERIM · {day} · Full-day metrics using the stand-in forecast.")
     st.metric("Average response time", f"{values['avg_response_min']:.1f} min")
     st.metric("90th percentile response time", f"{values['p90_response_min']:.1f} min")
-    st.metric("Percent reached within 15 minutes", f"{values['pct_within_15']:.0f}%")
+    st.metric("Percent reached within 15 minutes", f"{values['pct_within_15']:.1f}%")
     st.metric("Truck relocations", str(values["relocation_count"]))
+    if "activations" in values:
+        st.metric("On-call activations", str(values["activations"]))
+    if "truck_hours" in values:
+        st.metric("Truck-hours", f"{values['truck_hours']:.1f}")
 
 
 def main() -> None:
     st.set_page_config(page_title="StormStage", page_icon="❄️", layout="wide")
     st.title("StormStage")
     st.markdown("Adaptive tow-truck staging for Calgary winter incidents.")
-    st.info("MOCK / DEMO: truck positions, storm days, metrics, and decision messages are illustrative. "
-            "Zone coordinates come from zones.csv. No forecast or simulator is connected.")
+    st.info("PRECOMPUTED / INTERIM REPLAY: these exports were generated with B's stand-in forecast. "
+            "They are not yet the final weather-driven evaluation. A's final forecast must be "
+            "integrated and the replays regenerated before final performance claims can be made.")
+
+    if not STORM_DAYS:
+        st.error("No precomputed replay days are available.")
+        st.stop()
 
     with st.sidebar:
         st.header("Replay controls")
-        day = st.selectbox("Storm day (mock)", MOCK_STORM_DAYS)
+        day = st.selectbox("Storm day", STORM_DAYS)
         hour = st.slider("Current hour", min_value=0, max_value=23, value=DEFAULT_HOUR, format="%02d:00")
-        policy = st.selectbox("Policy", POLICIES, index=POLICIES.index("StormStage"))
+        policy = st.selectbox("Policy", POLICIES, index=POLICIES.index("StormStage + on-call"))
         st.radio("Play / Pause (placeholder)", ("Pause", "Play"), horizontal=True)
-        st.caption("Mock replay controls. Play/Pause does not advance time yet; use the hour slider. "
-                   "Storm days share the same demo fixtures.")
+        st.caption("Precomputed replay in Calgary local time (America/Edmonton). "
+                   "Play/Pause does not advance time yet; use the hour slider.")
 
     try:
         zones = load_zones()
-        # TODO A: Consume teammate forecast DataFrame[zone_id, expected_incidents]
-        # here for a future demand view. Do not import or call the forecast stub.
-
-        # TODO B: Consume simulator per-incident response log and per-hour truck
-        # positions here; replace these mock positions with the selected replay hour.
-        selected_trucks = get_mock_truck_positions(zones, policy, hour)
+        selected_trucks = get_truck_positions(day, policy, hour)
         comparison_trucks = {
-            name: get_mock_truck_positions(zones, name, hour)
+            name: get_truck_positions(day, name, hour)
             for name in COMPARISON_POLICIES
         }
-    except (OSError, ValueError, pd.errors.ParserError) as error:
-        st.error(f"Unable to load the zone map: {error}")
+        decision_log = get_decision_log(day, policy, hour)
+        incidents = get_incidents(day, policy, hour)
+    except (OSError, ValueError, KeyError, pd.errors.ParserError) as error:
+        st.error(f"Unable to load the precomputed replay: {error}")
         st.stop()
 
-    st.caption(f"Mock replay · {day} · {hour:02d}:00 · Selected policy: {policy}")
+    st.caption(f"PRECOMPUTED / INTERIM · {day} · {hour:02d}:00 Calgary local time · Selected policy: {policy}")
     st.subheader("Calgary zones")
     st.map(zones[["lat", "lon"]])
-    st.caption(f"{len(zones)} real zone locations from the repository's zones.csv.")
-    with st.expander(f"Selected policy — mock truck assignments: {policy}"):
-        st.dataframe(selected_trucks, hide_index=True, width="stretch")
-
-    st.subheader("Staging comparison — mock truck positions")
-    st.caption("Both panels use the selected hour. The comparison always shows Fixed staging and StormStage.")
+    st.caption(f"{len(zones)} citywide grid zones used by the precomputed replay.")
     shared_view = {
         "latitude": float((zones["lat"].min() + zones["lat"].max()) / 2),
         "longitude": float((zones["lon"].min() + zones["lon"].max()) / 2),
-        "zoom": 11,
+        "zoom": 10,
         "pitch": 0,
         "bearing": 0,
     }
+    with st.expander(f"Selected policy — replay truck positions and metrics: {policy}"):
+        st.caption(f"On-duty truck positions at {hour:02d}:00.")
+        show_truck_map(zones, selected_trucks, shared_view)
+        show_metrics(day, policy)
+
+    st.subheader("Staging comparison — precomputed truck positions")
+    st.caption(f"Both panels show on-duty trucks at {hour:02d}:00. Main comparison: "
+               + " vs. ".join(COMPARISON_POLICIES) + ".")
     for column, name in zip(st.columns(2), COMPARISON_POLICIES):
         with column:
             st.subheader(name)
             show_truck_map(zones, comparison_trucks[name], shared_view)
 
     st.divider()
-    st.subheader("Results — mock / demo data")
-    st.warning("Illustrative placeholders only. These values do not change with the replay controls "
-               "and do not establish a measured benefit for either policy.")
-    # TODO C: Replace MOCK_METRICS with teammate metrics output:
-    # avg_response_min, p90_response_min, pct_within_15, relocation_count.
+    st.subheader("Results — precomputed / interim replay")
+    st.warning("Full-day metrics for the selected storm day, independent of the hour slider. "
+               "Generated with the stand-in forecast; these are not final weather-model results "
+               "or evidence of final performance improvement.")
     for column, name in zip(st.columns(2), COMPARISON_POLICIES):
         with column:
-            show_metrics(name)
+            show_metrics(day, name)
 
     st.divider()
-    st.subheader("Decision log — mock / demo")
-    st.caption(f"Illustrative messages for {policy} through {hour:02d}:00; no reforecast or relocation is executed.")
-    for message in get_mock_decision_log(policy, hour):
+    st.subheader("Decision log — precomputed replay")
+    st.caption(f"Recorded decisions for {policy} through {hour:02d}:59 on {day}, Calgary local time.")
+    for message in decision_log:
         st.write(message)
+
+    st.divider()
+    st.subheader("Incidents — precomputed replay")
+    st.caption(f"{len(incidents)} incidents started through {hour:02d}:59 on {day} for {policy}. "
+               "Response times are completed replay outcomes, including responses after the selected hour.")
+    st.dataframe(incidents[["time", "lat", "lon", "unit_id", "response_min"]],
+                 hide_index=True, width="stretch")
 
 
 if __name__ == "__main__":
