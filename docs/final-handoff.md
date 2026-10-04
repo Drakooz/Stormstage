@@ -10,16 +10,18 @@ Reviewed October 4, 2026 using the user's America/Edmonton date context.
 
 `ui-presentation-redesign`. Development stayed on this branch.
 
-## Current main
+## Pre-merge main
 
-`03d52e620e8398a174074cee44e9a97be797b61b` — fetched from origin before development and again before pushing. No new teammate commits appeared. Main was left unchanged.
+`03d52e620e8398a174074cee44e9a97be797b61b` — fetched from origin before development and again during the final consistency pass. No new teammate commits appeared at that check. This identifies main before the release merge; see PR #17 for the resulting merge commit.
 
 ## Final feature commits
 
 - `839c6a96f9390fbee4cee9f334c0baa0ccdfc8a7` — Redesign presentation dashboard with time-correct replay evidence.
 - `324e73ca07102202fe4f1c1eaf01f971796dc621` — Align demo, architecture, and submission docs with the final dashboard.
 - `da7c33870fdd8e60b306d3bc0e27a027daa36a40` — Add verified running-app demo captures and provenance.
-- The final handoff/audit commit contains this document. Its identifier is available with `git log -1 --format="%H %s"`; a commit cannot embed its own final SHA in its contents.
+- `108e298` — Record release validation and final team handoff.
+- `65fc2b3` — Clarify causal rolling-origin evaluation in the backend documentation and result report, without changing behavior or numerical evidence.
+- The final consistency commit, “Align documentation with rolling-origin evaluation,” updates this document and the remaining release docs. Its identifier is recorded in PR #17's commit history.
 
 ## Files changed
 
@@ -28,7 +30,7 @@ Reviewed October 4, 2026 using the user's America/Edmonton date context.
 - Documents: `README.md`, `docs/pitch.md`, `docs/demo-runbook.md`, `docs/judge-qa.md`, `docs/submission-draft.md`, `docs/submission-checklist.md`, `docs/architecture-spec.md`, `docs/architecture-visual.md`, `docs/architecture-diagram.mmd`, this file.
 - Assets: `final_demo_assets/README.md`, `final_demo_assets/provenance.json`, and five PNGs listed below.
 
-No forecast, placement, simulation, evaluation, replay-interface semantics, datasets, replay exports, or result numbers changed. A final path-limited diff against the evidence base confirmed that boundary.
+The UI release did not change forecast, placement, simulation, evaluation, or replay-interface behavior, datasets, replay exports, or result numbers. The subsequent methodology correction (`65fc2b3`) updated documentation, including the `evaluate.py` docstring and generated-report wording; the final consistency pass updates only release documents. No evaluation results were regenerated for these corrections.
 
 ## What was completed
 
@@ -83,7 +85,8 @@ Project environment: **Python 3.14.3**, Streamlit **1.65.0**, pandas **3.0.6**, 
 - **1920×1080**, **1440×1080**, and **1100×1080** layouts: **passed**; no horizontal overflow or browser page errors. Readable cards/tables and map labels were visually reviewed. Vertical scrolling remains available for lower evidence sections.
 - AppTest exercised all **three exported dates × six policies**, plus hour/mode reruns: **passed**.
 - External HTTPS requests blocked in a fresh browser page: local replay cards, selected-day results, aggregate results, and expanded truck table **passed**. Map backgrounds require internet.
-- Source-boundary audit: backend, `replay_data.py`, `data/`, and `results/` diffs against `03d52e6` were **empty**.
+- UI source-boundary audit before `65fc2b3`: backend, `replay_data.py`, `data/`, and `results/` diffs against `03d52e6` were **empty**. The later methodology correction changed documentation only, including the result report; numerical evidence and behavior remained unchanged.
+- Final consistency pass after `65fc2b3`: `python -m pytest -q` — **25 passed** with normal temporary-directory access after the sandbox blocked a temp fixture; `git diff --check` — **passed**. Repository-wide stale-phrase matches were reviewed; the accurate judge question and B-specific holdout description remain. This pass changes only Markdown documentation.
 
 Local verification captures/scripts are retained in ignored `.validation/`. Only the five final PNGs and their provenance are release assets.
 
@@ -135,7 +138,7 @@ Problem and intended dispatcher user → original same-six hypothesis and negati
 - Results are simulated replay outcomes, not field-deployment results. Dispatch/travel/scene assumptions are shared but not calibrated field operations.
 - Reported traffic incidents are not all collisions or all tow calls. Blank weather descriptions and empty incident dates have reporting/coverage limitations.
 - Truck-hours are capacity use, not proven monetary cost or savings. No customer, partner, deployment, pricing, or savings validation exists.
-- A's forecast is causal, fits before the requested UTC decision date, and persists current weather over the horizon. It explicitly reserves Feb 4, Feb 14, and Nov 24 plus following UTC dates. The broader all-evaluation-days exclusion assertion in `results/RESULTS.md` is not established by `forecast.py`. Owner review remains; teammate evidence was preserved.
+- Evaluation uses a causal rolling-origin / out-of-time forecast. For each replay date, A fits only on information available before the requested UTC date. Earlier evaluation dates may become historical training data for later replay dates, so this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. Policy settings were selected on separate tuning days. The 12 storm and 8 normal evaluation dates were not all excluded from A's training. Current weather is persisted over the horizon. The result report and release documents now describe this methodology consistently.
 - Historical zone shares and full-year grid geometry do not establish held-out spatial validation or zone-specific weather effects.
 - Basemap tiles need internet. No autoplay, voice control, or forecast-intensity heatmap is claimed. Exported replays cover three dates; the evaluation spans 12 designated storm and eight normal dates.
 - Source/download/usage-term checks and separate evaluation-run provenance still need owners. Existing source-a exports and the evidence-base commit are documented.
@@ -145,7 +148,7 @@ Problem and intended dispatcher user → original same-six hypothesis and negati
 1. Confirm Thamer, Salif, and Adam's GitHub handles; placeholders remain in the draft.
 2. Confirm registration, identities, original-work/rules/Code of Conduct attestations, and submission author. No agreement was accepted on the team's behalf.
 3. Confirm firsthand learning/challenge reflections; retain or fill the draft's personal-reflection placeholder with team-confirmed text.
-4. Review data source usage and the documented forecast-exclusion discrepancy with A/B owners.
+4. Review data source usage with the owners and retain the documented rolling-origin evaluation limitation in the submission and Q&A.
 5. Add a judge-accessible demo/video/live URL if available. No external deployment or invented link was created.
 6. Rehearse the five-minute pitch and Q&A; confirm judge access and the current organizer deadline/form.
 7. Copy [submission-draft.md](submission-draft.md) into the organizer form, attach the five actual PNGs, fill the genuine unknowns, and **file the organizer submission personally**. Relative repository image links may need uploaded attachments or absolute raw links when copied into another repository's issue.
@@ -154,9 +157,9 @@ The previously recorded deadline is October 4, 2026 at noon MDT; organizer state
 
 ## Git state
 
-Feature branch pushed using existing authentication. Reviewable PR: [#17](https://github.com/Drakooz/Stormstage/pull/17). **Not merged**; main remains the SHA above. The optional merge was left for team/evidence-owner review because the preserved backend report contains the documented training-exclusion discrepancy. The UI uses the supported causal-forecast wording and has no known technical release blocker.
+Release PR: [#17](https://github.com/Drakooz/Stormstage/pull/17), `ui-presentation-redesign` into `main`. The methodology correction is complete and the result report and release documents agree. Rolling-origin evaluation is a methodology limitation, not a release blocker. The authorized release sequence is to push the final documentation commit, verify zero commits behind main, mergeability, passing tests, a clean working tree, and no new teammate changes or conflicts, then merge using the normal merge method and sync local main to `origin/main`. PR #17 records the live merge status and resulting commit.
 
-No force-push, history rewrite, destructive branch change, or new credential configuration occurred. The final audit/handoff commit is pushed on the same feature branch; the working tree is clean after it. Verify current state with `git status --short`, `git log -4 --oneline`, and `gh pr view 17 --repo Drakooz/Stormstage`.
+No force-push, history rewrite, destructive branch change, or new credential configuration is needed. Verify the final release state with `git status --short`, `git branch --show-current`, `git rev-parse HEAD origin/main`, and `gh pr view 17 --repo Drakooz/Stormstage`.
 
 ## Startup
 

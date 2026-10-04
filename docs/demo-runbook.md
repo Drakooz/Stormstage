@@ -31,7 +31,7 @@ Choose **Explorer Mode**. The Policy selector includes Fixed yards, Best fixed p
 
 Truck snapshots are at the selected hour's start; incidents and decision-log entries extend through that hour's end. Incident tables contain completed response outcomes, including later arrivals. Full-day scores are not per-hour scores.
 
-See [judge Q&A](judge-qa.md) for fairness, causality, capacity, and validation questions. Aggregate metrics are means of daily metrics. The forecast is causal, but the broader all-test-days training-exclusion claim in `results/RESULTS.md` is not established by `forecast.py`.
+See [judge Q&A](judge-qa.md) for fairness, causality, capacity, and validation questions. Aggregate metrics are means of daily metrics. Evaluation uses a causal rolling-origin forecast fitted only on information available before each requested UTC date. Earlier evaluation dates may become historical training data for later replay dates, so this is not a single frozen holdout set. Policy settings were selected on separate tuning days.
 
 ## Emergency fallback and assets
 

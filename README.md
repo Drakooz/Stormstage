@@ -35,7 +35,7 @@ StormStage + on-call lowered simulated average response from **14.1 to 10.6 minu
 
 **Feb 4 demo day only:** Fixed yards (naive) averaged **20.1 minutes**, versus **9.8 minutes** for StormStage + on-call. These full-day values are separate from the 12-day aggregate above; see [per-day results](results/test_by_day.csv) and [demo replay metrics](data/processed/replay/2025-02-04/metrics.json).
 
-**Evidence boundary:** A's forecast trains only on data before the requested UTC decision date. `forecast.py` explicitly reserves Feb 4, Feb 14, and Nov 24, plus each following UTC date. That implementation does not support the broader assertion in `results/RESULTS.md` that all 12 storm and 8 normal evaluation days are excluded from every forecast history. We report designated test-day results with a causal forecast, without claiming complete training exclusion of all evaluation days. The result file is unchanged.
+**Evaluation methodology:** Evaluation uses a causal rolling-origin / out-of-time forecast. For each replay date, A fits only on information available before the requested UTC date. Earlier evaluation dates may become historical training data for later replay dates, so this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. Policy settings were selected on separate tuning days. The 12 storm and 8 normal evaluation dates were not all excluded from A's training.
 
 ---
 

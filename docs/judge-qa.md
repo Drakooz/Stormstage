@@ -12,7 +12,9 @@
 
 **Did weather alone cause the Feb 4 activation?** No such claim is established. The signal is the larger of weather lift and recent incident activity. The log records 2.4× normal at 01:00 and four on-call activations, but does not identify which component dominated. Feb 4 records no relocations.
 
-**Is every test day fully held out from forecast training?** The forecast is causal: fitting stops before the requested UTC decision date and future observed weather is not read into the horizon. `forecast.py` explicitly reserves Feb 4, Feb 14, and Nov 24 plus the following UTC dates. The broader all-evaluation-days exclusion assertion in `results/RESULTS.md` is not established by that implementation. We use “12 designated storm test days using a causal forecast.”
+**Is every evaluation day fully held out from forecast training?** No. We used causal rolling-origin evaluation. Each replay only uses information available before that date, so earlier evaluation dates may become legitimate historical data for later forecasts.
+
+This is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. Policy settings were selected on separate tuning days. Current weather is persisted over the forecast horizon; future observed weather is not read into it.
 
 **Does moving the slider run AI or optimize live?** It reads precomputed positions, decisions, and full-day scores. The backend refreshes demand hourly during replay generation. Replay scores inform the tested policy-development revision, not an online optimizer feedback input.
 

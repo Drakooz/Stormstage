@@ -46,6 +46,6 @@ Use Presentation Mode, Feb 4, 2025. Keep technical details collapsed. Rehearse t
 
 **Say:** “Our next step is dispatcher review of the assumptions and suggested capacity timing, followed by a possible operational pilot. No customer, partner, deployment, pricing, or savings validation exists yet. The evidence helped us revise the problem from moving the same fleet to deciding when to add capacity.”
 
-**Q&A boundary:** the forecast trains before each requested UTC decision date, but only specific reserved dates are explicitly excluded. Do not claim all 12 storm and 8 normal evaluation days were fully excluded from every forecast history. Daily aggregate p90 values are means of daily percentiles, not pooled incident percentiles. See [judge Q&A](judge-qa.md).
+**Q&A boundary:** evaluation uses a causal rolling-origin / out-of-time forecast fitted only on information available before each requested UTC date. Earlier evaluation dates may become historical training data for later replay dates, so this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date; policy settings were selected on separate tuning days. Do not claim all 12 storm and 8 normal evaluation dates were excluded from A's training. Daily aggregate p90 values are means of daily percentiles, not pooled incident percentiles. See [judge Q&A](judge-qa.md).
 
 Before filing, the team must confirm member handles, registration/attestations, firsthand reflections, source usage, and any demo link. The final submission is a team action.

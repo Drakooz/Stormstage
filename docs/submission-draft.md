@@ -48,7 +48,7 @@ Streamlit, Pandas, and Pydeck show precomputed positions, incident responses, de
 
 The model allocates citywide demand to historical shares rather than learning zone-specific weather effects. Source timestamps and A's inputs are UTC, while B/C replay dates are Calgary local time. Reported incident coverage, approximate travel/service assumptions, and full-year grid geometry limit interpretation.
 
-A training-exclusion discrepancy remains: `forecast.py` explicitly reserves Feb 4, Feb 14, and Nov 24, plus following UTC dates. The broader claim in `results/RESULTS.md` that all 12 storm and 8 normal evaluation days are excluded from every forecast history is not established by A's implementation. We use **“evaluated across 12 designated storm test days using a causal forecast”**, without claiming all evaluation days are fully excluded from A's training. Teammate-owned results and code are unchanged by this documentation cleanup.
+Evaluation uses a causal rolling-origin / out-of-time forecast. For each replay date, A fits only on information available before the requested UTC date. Earlier evaluation dates may become historical training data for later replay dates, so this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. Policy settings were selected on separate tuning days. The 12 storm and 8 normal evaluation dates were not all excluded from A's training.
 
 ## 7. Screenshots
 
@@ -94,6 +94,6 @@ StormStage + on-call beat Fixed yards on **10 of 12** storm days and Best fixed 
 
 **Evidence:** inspected local main `03d52e6`; source `a` evaluation, [response results by day](../results/test_by_day.csv), [Feb 4 action log](../data/processed/replay/2025-02-04/stormstage_actions.csv), and [aggregate results](../results/test_summary.csv). A separately recorded evaluation run ID is not established; the commit identifies the inspected repository snapshot.
 
-**Limits:** metrics are **simulated replay outcomes, not field-deployment results**. Response-time gains do not establish forecast accuracy, calibrated operational response, customer validation, pricing, or monetary savings. Report zero/negative results honestly and disclose extra capacity. The broader forecast-training exclusion assertion in the result report needs A/B reconciliation as described above.
+**Limits:** metrics are **simulated replay outcomes, not field-deployment results**. Response-time gains do not establish forecast accuracy, calibrated operational response, customer validation, pricing, or monetary savings. Report zero/negative results honestly and disclose extra capacity. Evaluation is causal rolling-origin, not a single frozen holdout set, as described above.
 
 **Local setup:** Python 3.10+, `python -m pip install -r requirements.txt`, then `python -m streamlit run app.py`. Clean-clone commands/results and actual screenshot provenance are recorded in [final handoff](final-handoff.md). Final team review, any video/live link, and access checks remain team actions; see [submission checklist](submission-checklist.md).
