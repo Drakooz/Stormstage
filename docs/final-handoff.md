@@ -2,7 +2,7 @@
 
 ## Release status
 
-**READY — presentation release candidate.** The dashboard, tests, reproducible startup, documents, and actual screenshot package are complete. This does not mean the organizer submission has been filed or that team identity, registration, source usage, or field validation is confirmed. Remaining team actions are listed below.
+**READY: presentation release candidate.** The dashboard, tests, reproducible startup, documents, and actual screenshot package are complete. This does not mean the organizer submission has been filed or that team identity, registration, source usage, or field validation is confirmed. Remaining team actions are listed below.
 
 Reviewed October 4, 2026 using the user's America/Edmonton date context.
 
@@ -12,15 +12,15 @@ Reviewed October 4, 2026 using the user's America/Edmonton date context.
 
 ## Pre-merge main
 
-`03d52e620e8398a174074cee44e9a97be797b61b` — fetched from origin before development and again during the final consistency pass. No new teammate commits appeared at that check. This identifies main before the release merge; see PR #17 for the resulting merge commit.
+`03d52e620e8398a174074cee44e9a97be797b61b`: fetched from origin before development and again during the final consistency pass. No new teammate commits appeared at that check. This identifies main before the release merge; see PR #17 for the resulting merge commit.
 
 ## Final feature commits
 
-- `839c6a96f9390fbee4cee9f334c0baa0ccdfc8a7` — Redesign presentation dashboard with time-correct replay evidence.
-- `324e73ca07102202fe4f1c1eaf01f971796dc621` — Align demo, architecture, and submission docs with the final dashboard.
-- `da7c33870fdd8e60b306d3bc0e27a027daa36a40` — Add verified running-app demo captures and provenance.
-- `108e298` — Record release validation and final team handoff.
-- `65fc2b3` — Clarify causal rolling-origin evaluation in the backend documentation and result report, without changing behavior or numerical evidence.
+- `839c6a96f9390fbee4cee9f334c0baa0ccdfc8a7`: Redesign presentation dashboard with time-correct replay evidence.
+- `324e73ca07102202fe4f1c1eaf01f971796dc621`: Align demo, architecture, and submission docs with the final dashboard.
+- `da7c33870fdd8e60b306d3bc0e27a027daa36a40`: Add verified running-app demo captures and provenance.
+- `108e298`: Record release validation and final team handoff.
+- `65fc2b3`: Clarify causal rolling-origin evaluation in the backend documentation and result report, without changing behavior or numerical evidence.
 - The final consistency commit, “Align documentation with rolling-origin evaluation,” updates this document and the remaining release docs. Its identifier is recorded in PR #17's commit history.
 
 ## Files changed
@@ -47,7 +47,7 @@ The UI release did not change forecast, placement, simulation, evaluation, or re
 
 ## Final evidence
 
-**Feb 4 demo day only — full-day simulated outcomes:**
+**Feb 4 demo day only: full-day simulated outcomes:**
 
 | Policy | Average response | P90 | Within 15 min | Truck-hours |
 | --- | --- | --- | --- | --- |
@@ -56,12 +56,12 @@ The UI release did not change forecast, placement, simulation, evaluation, or re
 
 The computed average-response reduction is **51.2%**. Four on-call units activate at **01:00**, with a recorded **2.4× normal** signal and **2.0×** threshold. All four stand down at **22:00**. This replay records **no relocations**. Faster simulated response required additional on-call capacity.
 
-**Across 12 designated storm test days using a causal forecast — means of daily metrics:**
+**Across 12 designated storm test days using a causal forecast: means of daily metrics:**
 
 | Policy | Average response | Mean daily p90 | Mean within-15 share | Truck-hours/day |
 | --- | --- | --- | --- | --- |
-| Fixed yards — primary | 14.1 min | 27.1 min | 68.2% | 144 |
-| Best fixed plan — secondary | 13.7 min | 26.1 min | 70.9% | 144 |
+| Fixed yards: primary | 14.1 min | 27.1 min | 68.2% | 144 |
+| Best fixed plan: secondary | 13.7 min | 26.1 min | 70.9% | 144 |
 | StormStage same six | 14.2 min | 27.1 min | 68.8% | 144 |
 | StormStage + on-call | 10.6 min | 18.9 min | 79.3% | 176.5 |
 | Ten trucks active all day | 7.5 min | 13.1 min | 93.3% | 240 |
@@ -86,7 +86,7 @@ Project environment: **Python 3.14.3**, Streamlit **1.65.0**, pandas **3.0.6**, 
 - AppTest exercised all **three exported dates × six policies**, plus hour/mode reruns: **passed**.
 - External HTTPS requests blocked in a fresh browser page: local replay cards, selected-day results, aggregate results, and expanded truck table **passed**. Map backgrounds require internet.
 - UI source-boundary audit before `65fc2b3`: backend, `replay_data.py`, `data/`, and `results/` diffs against `03d52e6` were **empty**. The later methodology correction changed documentation only, including the result report; numerical evidence and behavior remained unchanged.
-- Final consistency pass after `65fc2b3`: `python -m pytest -q` — **25 passed** with normal temporary-directory access after the sandbox blocked a temp fixture; `git diff --check` — **passed**. Repository-wide stale-phrase matches were reviewed; the accurate judge question and B-specific holdout description remain. This pass changes only Markdown documentation.
+- Final consistency pass after `65fc2b3`: `python -m pytest -q`: **25 passed** with normal temporary-directory access after the sandbox blocked a temp fixture; `git diff --check`: **passed**. Repository-wide stale-phrase matches were reviewed; the accurate judge question and B-specific holdout description remain. This pass changes only Markdown documentation.
 
 Local verification captures/scripts are retained in ignored `.validation/`. Only the five final PNGs and their provenance are release assets.
 

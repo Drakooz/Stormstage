@@ -16,7 +16,7 @@ def place_trucks(demand, T, k, current=None, move_penalty_min=3.0, max_rounds=3)
     T: array (Z, Z) drive minutes between zones
     current: list of k zone indices where trucks are now (None = plan from scratch)
     move_penalty_min: a move must save at least this many expected minutes
-    Returns (sites, reasons) — sites[i] is truck i's new zone index.
+    Returns (sites, reasons): sites[i] is truck i's new zone index.
     """
     Z = len(demand)
     reasons = []

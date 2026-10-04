@@ -71,12 +71,12 @@ def get_metrics(day, policy) -> dict:
 
 
 def get_decision_log(day, policy, hour) -> list:
-    """Plain-English actions up to hour:59, e.g. '07:00 — Unit 7 called in: incidents forecast x2.3 normal'."""
+    """Plain-English actions up to hour:59, e.g. '07:00: Unit 7 called in: incidents forecast x2.3 normal'."""
     acts = _csv(day, _key(policy), "actions")
-    msgs = [f"00:00 — {len(get_truck_positions(day, policy, 0))} units staged ({get_metrics(day, policy)['label']})."]
+    msgs = [f"00:00: {len(get_truck_positions(day, policy, 0))} units staged ({get_metrics(day, policy)['label']})."]
     if len(acts):
         upto = acts[acts["time"] < pd.Timestamp(day) + pd.Timedelta(hours=hour + 1)]
-        msgs += [f"{t:%H:%M} — {r}" for t, r in zip(upto["time"], upto["reason"])]
+        msgs += [f"{t:%H:%M}: {r}" for t, r in zip(upto["time"], upto["reason"])]
     return msgs
 
 

@@ -1,4 +1,4 @@
-# StormStage — demo runbook
+# StormStage: demo runbook
 
 The dashboard reads weather-driven **precomputed simulation** exports (forecast source `a`). Every shown hour is **Calgary local time (America/Edmonton)**. Fixed yards is the primary baseline; Best fixed plan is secondary. Results are simulated replay outcomes, not field-deployment results.
 

@@ -1,4 +1,4 @@
-# StormStage — judge Q&A
+# StormStage: judge Q&A
 
 **Why is the comparison fair when on-call uses more trucks?** We replay the same reported incidents with shared dispatch, travel, and scene assumptions, and expose capacity alongside response. Fixed yards is the primary six-truck baseline. The ten-trucks-all-day comparator shows what additional capacity achieves.
 

@@ -6,11 +6,11 @@ Organizer references carried from the earlier review at organizer commit `fe3d53
 
 **Recorded deadline: Sunday, October 4, 2026, 12:00 PM MDT (America/Edmonton).** The recorded submission path is one Hackathon Submission issue. The earlier form/guide review treated demo links and additional info as optional despite the README's package list; include both. This cleanup does not file a submission or re-verify organizer/account state.
 
-## READY — repository evidence
+## READY: repository evidence
 
-- [x] **Team:** Admest FC — Thamer Elsadek, Salif Sylla, Adam Bensidi, as recorded in [README](../README.md). Confirmed handles remain unresolved below.
-- [x] **Stream / path:** Software and Computational Math; Option A — own problem using public data.
-- [x] **Title / description:** StormStage — forecast-triggered on-call capacity and adaptive tow-truck staging for Calgary winter incidents.
+- [x] **Team:** Admest FC: Thamer Elsadek, Salif Sylla, Adam Bensidi, as recorded in [README](../README.md). Confirmed handles remain unresolved below.
+- [x] **Stream / path:** Software and Computational Math; Option A: own problem using public data.
+- [x] **Title / description:** StormStage: forecast-triggered on-call capacity and adaptive tow-truck staging for Calgary winter incidents.
 - [x] **Repository link:** [Drakooz/Stormstage](https://github.com/Drakooz/Stormstage). Judge-access verification remains a final check.
 - [x] **Architecture:** [specification](architecture-spec.md) and [inline judge-facing visual](architecture-visual.md) describe the integrated pipeline and evidence boundaries.
 - [x] **Pitch / walkthrough:** [pitch](pitch.md) and [demo runbook](demo-runbook.md) contain measured source-`a` results and separate the Feb 4 demo from the storm-test aggregate.
@@ -23,14 +23,14 @@ Organizer references carried from the earlier review at organizer commit `fe3d53
 - [x] **Demo evidence:** Feb 4 full-day average is 20.1 minutes for Fixed yards versus 9.8 for on-call; activation is recorded at 01:00 Calgary local time, with no relocations. This is not the 12-day aggregate.
 - [x] **PLAN → SCORE → REVISE → RESCORE:** tested policy revision is supported by same-fleet and on-call results; hourly revisions are logged. Slider snapshots and full-day cards do not establish per-step scores.
 
-## OWNER REVIEW — evidence limitations
+## OWNER REVIEW: evidence limitations
 
 - [x] **Evaluation methodology documented:** causal rolling-origin / out-of-time evaluation fits A only on information available before each requested UTC date. Earlier evaluation dates may become historical training data for later replay dates; this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. Policy settings were selected on separate tuning days. The 12 storm and 8 normal evaluation dates were not all excluded from A's training. [RESULTS.md](../results/RESULTS.md) and the release documents describe this limitation consistently.
-- [ ] **A — source/usage review:** `data/README.md` is present and documents ECCC station identifiers, coverage, preparation, time zones, and limitations. Confirm the exact Open Calgary source/download citation and usage terms for both sources before filing; do not claim this review is complete.
-- [ ] **A/B — traceability review:** confirm evaluated commit/run provenance and shared replay assumptions. Current files identify forecast `a`; documentation cites inspected local main, not a separately recorded evaluation run ID.
-- [ ] **Team — limits:** maintain “simulated replay outcomes, not field-deployment results” and “reported incidents are not all collisions or all tow calls.” Do not imply forecast accuracy, customer validation, pricing, monetary savings, or deployment from response scores.
+- [ ] **A: source/usage review:** `data/README.md` is present and documents ECCC station identifiers, coverage, preparation, time zones, and limitations. Confirm the exact Open Calgary source/download citation and usage terms for both sources before filing; do not claim this review is complete.
+- [ ] **A/B: traceability review:** confirm evaluated commit/run provenance and shared replay assumptions. Current files identify forecast `a`; documentation cites inspected local main, not a separately recorded evaluation run ID.
+- [ ] **Team: limits:** maintain “simulated replay outcomes, not field-deployment results” and “reported incidents are not all collisions or all tow calls.” Do not imply forecast accuracy, customer validation, pricing, monetary savings, or deployment from response scores.
 
-## WAITING ON C / TEAM — submission assets
+## WAITING ON C / TEAM: submission assets
 
 - [ ] **Confirmed member handles:** contributor usernames do not establish identity. Keep unresolved placeholders in the submission draft.
 

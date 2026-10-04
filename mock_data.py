@@ -36,16 +36,16 @@ MOCK_METRICS = {
 
 # Hour, policy (None means all policies), and human-readable demo message.
 MOCK_DECISION_LOG = (
-    (0, None, "00:00 — Mock replay ready. Six demo units staged."),
-    (15, "StormStage", "15:00 — Snow detected. Reforecasting next 3 hours."),
+    (0, None, "00:00: Mock replay ready. Six demo units staged."),
+    (15, "StormStage", "15:00: Snow detected. Reforecasting next 3 hours."),
     (
         15,
         "StormStage",
-        "15:00 — Unit 3 moved to Z14. Reason: forecast demand increased "
+        "15:00: Unit 3 moved to Z14. Reason: forecast demand increased "
         "in southeast Calgary.",
     ),
-    (15, "Fixed staging", "15:00 — Snow detected. Demo units remain at fixed staging zones."),
-    (15, "Historical hotspots", "15:00 — Snow detected. Demo units remain at historical hotspot zones."),
+    (15, "Fixed staging", "15:00: Snow detected. Demo units remain at fixed staging zones."),
+    (15, "Historical hotspots", "15:00: Snow detected. Demo units remain at historical hotspot zones."),
 )
 
 

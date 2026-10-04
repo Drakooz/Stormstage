@@ -25,8 +25,8 @@ These are **simulated replay outcomes, not field-deployment results**. The follo
 
 | Policy | Average response (min) | Daily p90 (min) | Within 15 min (%) | Truck-hours/day |
 | --- | --- | --- | --- | --- |
-| Fixed yards (naive) — primary baseline | 14.1 | 27.1 | 68.2 | 144 |
-| Best fixed plan — secondary comparator | 13.7 | 26.1 | 70.9 | 144 |
+| Fixed yards (naive): primary baseline | 14.1 | 27.1 | 68.2 | 144 |
+| Best fixed plan: secondary comparator | 13.7 | 26.1 | 70.9 | 144 |
 | StormStage (same 6 trucks) | 14.2 | 27.1 | 68.8 | 144 |
 | StormStage + on-call | 10.6 | 18.9 | 79.3 | 176.5 |
 | Fixed 10 trucks all day | 7.5 | 13.1 | 93.3 | 240 |

@@ -24,11 +24,11 @@ Both signals are bounded. The earlier forecast ÷ `baseline_forecast()` divided 
 
 | 12 test storm days | Avg response | 9 in 10 within | Within 15 min | Truck-hours/day | Days beating naive | Days beating best fixed |
 |---|---|---|---|---|---|---|
-| Fixed yards (naive) | 14.1 min | 27.1 min | 68% | 144 | — | — |
-| Best fixed plan | 13.7 min | 26.1 min | 71% | 144 | — | — |
+| Fixed yards (naive) | 14.1 min | 27.1 min | 68% | 144 | N/A | N/A |
+| Best fixed plan | 13.7 min | 26.1 min | 71% | 144 | N/A | N/A |
 | StormStage (same 6 trucks) | 14.2 min | 27.1 min | 69% | 144 | 5 of 12 | 2 of 12 |
 | **StormStage + on-call** | **10.6 min** | **18.9 min** | **79%** | **176.5** | **10 of 12** | **8 of 12** |
-| Fixed, 10 trucks all day | 7.5 min | 13.1 min | 93% | 240 | — | — |
+| Fixed, 10 trucks all day | 7.5 min | 13.1 min | 93% | 240 | N/A | N/A |
 
 | 8 test normal days | Avg response | Truck-hours/day |
 |---|---|---|
@@ -89,7 +89,7 @@ from replay_data import (STORM_DAYS, POLICIES, COMPARISON_POLICIES, get_zones,
 
 get_truck_positions("2025-02-04", "StormStage", hour=15, minute=0)  # unit_id, zone_id, lat, lon, status (5-min steps)
 get_metrics("2025-02-04", "Fixed yards (naive)")   # avg_response_min, p90_response_min, pct_within_15, relocation_count, activations, truck_hours
-get_decision_log("2025-02-04", "StormStage", hour=9)   # ["07:00 — Unit 7 called in: incidents forecast x2.1 normal", ...]
+get_decision_log("2025-02-04", "StormStage", hour=9)   # ["07:00: Unit 7 called in: incidents forecast x2.1 normal", ...]
 get_incidents("2025-02-04", "StormStage", hour=9)      # time, lat, lon, unit_id, response_min
 get_zones()                                            # the 179 grid zones the replays use
 ```

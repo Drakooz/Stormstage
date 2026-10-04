@@ -17,7 +17,7 @@ def recorded_events(messages: list[str]) -> list[dict]:
     """Group actual logged unit actions at the same time and recorded signal."""
     events = {}
     for message in messages:
-        match = re.match(r"^(\d{2}):(\d{2})\s+—\s+(.+)$", message)
+        match = re.match(r"^(\d{2}):(\d{2})\s+:\s+(.+)$", message)
         if not match:
             continue
         hour, minute, reason = match.groups()

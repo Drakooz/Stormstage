@@ -4,15 +4,15 @@ Admest FC
 
 ## 2. Team Member Names and GitHub Handles
 
-- Thamer Elsadek — [GITHUB HANDLE: confirm with Thamer]
-- Salif Sylla — [GITHUB HANDLE: confirm with Salif]
-- Adam Bensidi — [GITHUB HANDLE: confirm with Adam]
+- Thamer Elsadek: [GITHUB HANDLE: confirm with Thamer]
+- Salif Sylla: [GITHUB HANDLE: confirm with Salif]
+- Adam Bensidi: [GITHUB HANDLE: confirm with Adam]
 
 ## 3. Project Stream
 
 Software and Computational Math
 
-Option A — own problem using public data.
+Option A: own problem using public data.
 
 ## 4. Project Title
 
@@ -54,15 +54,15 @@ Evaluation uses a causal rolling-origin / out-of-time forecast. For each replay 
 
 Actual running-app captures, forecast source `a`, Feb 4, 2025 at 01:00 Calgary time. The result bands are completed full-day/aggregate simulation outcomes. [Asset provenance](../final_demo_assets/README.md) identifies the source commit and capture checks.
 
-![Presentation overview — recorded six-to-ten activation and actual operations map](../final_demo_assets/01_stormstage_overview.png)
+![Presentation overview: recorded six-to-ten activation and actual operations map](../final_demo_assets/01_stormstage_overview.png)
 
-![Activation evidence — 2.4× normal, threshold 2.0×, four on-call units](../final_demo_assets/02_activation_evidence.png)
+![Activation evidence: 2.4× normal, threshold 2.0×, four on-call units](../final_demo_assets/02_activation_evidence.png)
 
-![Feb 4 only — 20.1 to 9.8 minutes with 144 to 228 truck-hours](../final_demo_assets/03_demo_day_results.png)
+![Feb 4 only: 20.1 to 9.8 minutes with 144 to 228 truck-hours](../final_demo_assets/03_demo_day_results.png)
 
-![12 designated storm test days — response and capacity comparison](../final_demo_assets/04_aggregate_results.png)
+![12 designated storm test days: response and capacity comparison](../final_demo_assets/04_aggregate_results.png)
 
-![Tested policy development — PLAN to SCORE to REVISE to RESCORE](../final_demo_assets/05_strategy_revision.png)
+![Tested policy development: PLAN to SCORE to REVISE to RESCORE](../final_demo_assets/05_strategy_revision.png)
 
 ## 8. Demo Video / Live Site
 
@@ -82,8 +82,8 @@ Actual running-app captures, forecast source `a`, Feb 4, 2025 at 01:00 Calgary t
 
 | Policy | Average response (min) | Mean daily p90 (min) | Mean within-15 share (%) | Truck-hours/day |
 | --- | --- | --- | --- | --- |
-| Fixed yards (naive) — primary | 14.1 | 27.1 | 68.2 | 144 |
-| Best fixed plan — secondary | 13.7 | 26.1 | 70.9 | 144 |
+| Fixed yards (naive): primary | 14.1 | 27.1 | 68.2 | 144 |
+| Best fixed plan: secondary | 13.7 | 26.1 | 70.9 | 144 |
 | StormStage (same 6 trucks) | 14.2 | 27.1 | 68.8 | 144 |
 | StormStage + on-call | 10.6 | 18.9 | 79.3 | 176.5 |
 | Fixed 10 trucks all day | 7.5 | 13.1 | 93.3 | 240 |

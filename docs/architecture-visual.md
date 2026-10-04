@@ -1,4 +1,4 @@
-# StormStage — final design
+# StormStage: final design
 
 **PLAN → SCORE → REVISE → RESCORE**
 
