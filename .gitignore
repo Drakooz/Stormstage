@@ -205,6 +205,9 @@ cython_debug/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
+# Regenerable Part A zone-hour intermediate (~56 MB)
+/data/processed/zone_hourly.csv
+
 # Ruff stuff:
 .ruff_cache/
 
