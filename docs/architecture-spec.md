@@ -1,93 +1,92 @@
 # StormStage architecture specification
 
-This is the architecture intended for judges, with unfinished components disclosed. Evidence was inspected on October 3, 2026 against merged `origin/main` (`1668de9`), included in the current checkout: [README](../README.md), [pitch](pitch.md), [demo runbook](demo-runbook.md), [app.py](../app.py), [forecast.py](../forecast.py), [mock_data.py](../mock_data.py), [zones.csv](../zones.csv), [src/load.py](../src/load.py), and the raw/cleaned incident CSVs. The 2025 incident-cleaning work is now on main and PR #3 is no longer open. `src/load.py`, `data/raw/calgary_traffic_incidents_full.csv`, and `data/processed/incidents_clean.csv` are tracked on main, but the incident pipeline is not integrated into the app. Their presence does not establish validated provenance/output or completed weather, forecast, placement, simulator, metrics, or autonomous re-plan work. No numerical results are established here.
+Reviewed October 3, 2026 against current main (`1081dfa`), which matches this checkout. Evidence: [README](../README.md), [B implementation notes](../B_PLACEMENT_SIMULATOR.md), [interim results](../results/RESULTS.md), and the tracked backend, replay exports, and dashboard. The final design uses **6 base trucks + up to 4 additional on-call trucks**, activated when forecasted demand indicates a surge; active trucks are staged/re-staged near expected demand. Same-six-truck re-staging showed little advantage in the stand-in evaluation, prompting this policy revision. A's real weather-driven forecast is **not yet integrated**. Final weather-driven metrics remain **[PENDING]**.
 
 ## Intended judge-facing flow
 
-The architecture specification / Mermaid data-flow exists below. The final judge-facing architecture visual still needs C verification/polish before presentation. All backend arrows are planned handoffs, not proof of an integrated pipeline. Status details follow the diagram.
+The diagram describes the final weather-driven flow. Placement, replay, scoring, and precomputed dashboard handoffs exist on main using B's stand-in forecast; the real weather-driven forecast handoff remains pending. The final presentation visual still needs C review.
 
 ```mermaid
 flowchart TD
     I[Open Calgary reported incidents] --> D[Data cleaning / zone preparation]
     W[ECCC weather] --> D
     D --> F[Forecast next 3 hours by zone]
-    F --> P[Truck placement / re-plan]
+    F --> P[Activate on-call capacity / stage active trucks]
     P --> R[Replay simulator]
     D -->|Same real incidents for every policy| R
     R --> M[Metrics / score]
     M --> C{If conditions change: re-plan}
-    C -->|Refresh demand and revise staging hourly| F
+    C -->|Refresh demand / revise capacity and staging hourly| F
     C --> S[Streamlit dashboard]
     M -->|Response summaries| S
     R -->|Response log and per-hour positions| S
     P -->|Assignments and move reasons| S
 ```
 
-The intended loop is **plan → score → revise → rescore**: forecast demand, stage the fleet, evaluate through replay, then refresh demand and reconsider placement each hour, including when conditions change. A revised plan is replayed/scored again. The dashboard presents its evidence; no such loop executes in the current shell.
+The loop is **plan → score → revise → rescore**: forecast demand, choose capacity and staging, evaluate through replay, refresh demand hourly, revise the plan, and score the replay outcomes. B implements hourly replanning and replay scoring. The dashboard reads precomputed evidence; moving its slider does not run an optimizer or recompute a score. Final weather-driven cycle evidence is **[PENDING]**.
 
 ## Component status
 
-Status terms: **present on main** means an artifact is tracked on inspected merged main; **implemented on main** means code exists there, not that its outputs have been validated; **present only as stub** means placeholder behavior; **pending teammate delivery** means an assigned handoff remains unverified; **not yet integrated** means the current app does not consume real output. The merged incident artifacts do not verify provenance, reproducibility, output correctness, or any other teammate implementation. A = Data & Forecast, B = Optimizer & Simulator, C = App, Voice & Pitch Lead.
+Status terms describe repository evidence, not field validation. A = Data & Forecast, B = Optimizer & Simulator, C = App, Voice & Pitch Lead.
 
 | Component | Current status | Evidence and intended handoff |
 | --- | --- | --- |
-| Open Calgary reported incidents | **present on main**; **not yet integrated** | `data/raw/calgary_traffic_incidents_full.csv` and `data/processed/incidents_clean.csv` are tracked on main; the app does not load them. Validated provenance, coverage, and demo-day evidence remain pending. |
-| ECCC hourly weather | **pending teammate delivery** (A); **not yet integrated** | Calgary International weather is planned in README; no weather input, station metadata, or join pipeline is tracked on inspected main. The incident merge does not establish weather completion. |
-| Data cleaning / zone preparation | 2025 incident cleaning **implemented on main**; remaining preparation **pending teammate delivery** (A); **not yet integrated** | `src/load.py` parses incident start times, filters to 2025, selects columns, drops rows missing coordinates, sorts by start time, and writes the tracked cleaned CSV. Provenance, output validation, reproducibility, and time-zone rules remain pending. Root `zones.csv` and app zone validation/loading are **implemented on main**; incident-to-zone assignment and hourly weather joins are not established. |
-| Forecast next 3 hours by zone | **present only as stub**; real forecast **pending teammate delivery** (A); **not yet integrated** | `forecast.py` explicitly returns fake demand; `baseline_forecast` is also a stub. Its input zone path is outside this checkout. App comments explicitly avoid calling it. The incident merge does not establish forecast completion. |
-| Truck placement / re-plan | **pending teammate delivery** (B); **not yet integrated** | No `place_trucks` implementation or move-cost computation is tracked. README proposes greedy placement plus one swap pass. Current assignments/reasons are fixtures. |
-| Replay simulator | **pending teammate delivery** (B); **not yet integrated** | No `simulate` implementation or per-incident response log is tracked. Nearest-free-truck dispatch is a README plan. |
-| Metrics / score | **pending teammate delivery** (B); **not yet integrated** | No `metrics(log)` implementation or measured summaries are tracked. `MOCK_METRICS` contains static illustrative values only. |
-| If conditions change → re-plan | **pending teammate delivery** (B, with A forecasts); **not yet integrated** | The hourly revise/rescore loop is planned. The fixture changes one assignment at hour 15; no optimizer, forecast refresh, or rescoring executes. |
-| Streamlit dashboard | **implemented on main** as a mock shell; real outputs **not yet integrated** (C) | Zone display, comparison maps/tables, manual hour slider, mock metric cards, and mock log exist. Day selections share fixtures; Play/Pause is a placeholder. Forecast view and voice are absent. |
+| Open Calgary reported incidents | **present and used by B replay** | Raw/cleaned CSVs and `src/load.py` are tracked. B loads raw incidents through `common.py`; the app reads exported incident responses. Final source/coverage documentation remains pending. |
+| ECCC hourly weather | **raw files present**; real forecast integration **pending A** | Monthly 2025 UTC weather CSVs are tracked. `weather.py` expects `data/processed/weather_hourly.csv`, which is absent. Current replays do not use a real weather-driven forecast. |
+| Data cleaning / zone preparation | **implemented on main**; final alignment **pending A/B** | B uses `data/processed/zones_grid.csv` (179 citywide zones). Root `zones.csv` has 20 downtown zones. A/B must align forecast coverage and zone IDs. |
+| Forecast next 3 hours by zone | **stand-in used by B**; A's real model **pending** | `common.standin_forecast` uses history and recent incidents; `forecast.py` and `baseline_forecast` remain stubs. `forecast_adapter.py` provides the future A handoff. |
+| Truck placement / re-plan | **implemented on main** | `place.py` uses greedy p-median and swaps with a move penalty. `simulate.py` stages/re-stages active trucks and activates up to 4 on-call trucks during forecast surges. |
+| Replay simulator | **implemented on main**; exports **connected to app** | Nearest-arrival dispatch with responding/on-scene/returning/relocating timelines; per-incident responses and truck positions exported by `export_replay.py`. |
+| Metrics / score | **interim results present** | `simulate.metrics`, `evaluate.py`, `results/RESULTS.md`, and replay `metrics.json` provide simulated response metrics and capacity costs using the stand-in forecast. |
+| If conditions change → re-plan | **implemented with stand-in forecast** | Hourly forecast refresh revises capacity and staging. Final weather-driven revision/rescore evidence remains pending. |
+| Streamlit dashboard | **precomputed replay integrated** (C) | `app.py` reads `replay_data.py`: day/hour-specific positions, incident responses, reasons, and full-day metrics. Play/Pause remains a placeholder; forecast visualization and voice are absent. |
 
 ## Known build-plan interfaces
 
-These are the agreed logical handoffs recorded in the task/build plan, not a claim that all functions exist. B's exact parameter lists, artifact formats, and extra fields still need confirmation; do not treat proposed details below as implemented APIs.
+These handoffs are represented in the current code. See [B implementation notes](../B_PLACEMENT_SIMULATOR.md) for full parameters and export schemas.
 
 | Interface | Required output | Current evidence |
 | --- | --- | --- |
-| `forecast(day, hour, weather)` | `DataFrame: zone_id, expected_incidents` | Signature/columns exist in the forecast stub only. |
-| `place_trucks(...)` | `truck_id, zone_id, reason` | Planned B handoff; no implementation on inspected main. |
-| `simulate(day, policy, k)` | Per-incident response log + per-hour truck positions | Planned B handoff; no implementation on inspected main. |
-| `metrics(log)` | `avg_response_min, p90_response_min, pct_within_15` | Planned B handoff; mock cards use these names but perform no calculation. |
+| `forecast(day, hour, weather)` | `DataFrame: zone_id, expected_incidents` | A stub; adapter converts Calgary decision time to UTC. B currently uses its stand-in instead. |
+| `place_trucks(demand, T, k, current, move_penalty_min)` | Staging sites and move reasons | Implemented in `place.py`; simulator maps sites to active units. |
+| `simulate(...)`, `truck_positions(...)` | Per-incident response log, actions, and truck timelines | Implemented in `simulate.py`; exported snapshots use 5-minute steps. |
+| `metrics(log)`, `replay_data.get_metrics(day, policy)` | Response metrics; exports also include relocations, activations, truck-hours | Computed interim summaries; the app displays full-day values, independent of its hour slider. |
 
-**Forecast:** the stub documents `day` as a date or `YYYY-MM-DD`, `hour` as 0–23, and `weather` keys `snowing`, `temp_c`, and `snow_last_6h`. `expected_incidents` represents demand summed over the next three hours per zone, not observed incident counts or three separate hourly predictions. The real model must preserve these columns and align zone IDs with downstream inputs. How forecasts cross midnight and how local hours/DST are represented need A's confirmation.
+**Forecast:** the A interface uses `day`, `hour` (0–23), and weather keys `snowing`, `temp_c`, and `snow_last_6h`. `expected_incidents` sums next-three-hour demand per zone. Raw incident/weather times stay UTC; B converts to Calgary local time (`America/Edmonton`) at the simulator boundary, and the adapter converts back to UTC for A calls. The real model must align zone IDs and preserve the interface.
 
-**Placement:** the known output identifies each truck, its staging zone, and a one-line reason. Inputs are intentionally left as `...` until B confirms demand, fleet state, candidate zones, travel costs, and move-penalty parameters. Root zones expose `zone_id, lat, lon`. The shell currently calls trucks `unit_id`; C must map B's `truck_id` explicitly rather than assume schemas match.
+**Placement:** demand, travel costs, active fleet size, current sites, and a move penalty determine staging. Exported positions use `unit_id, zone_id, lat, lon, status`; action logs supply a one-line reason per activation/move. On-call units appear only while on duty.
 
-**Replay:** README plans six trucks (`k = 6`) and nearest-free-truck dispatch to real reported incidents. The exact log and position schemas are pending B. To verify replay and connect the UI, the handoff needs incident identities/times and response minutes, plus hour/time, truck identity, and position/zone association. These are proposed integration requirements, not confirmed extra field names. B must document travel times, service duration, queueing/free-truck rules, relocation costs, and initial fleet state.
+**Replay:** 6 base trucks plus up to 4 on-call trucks; current stand-in runs trigger the additional capacity at 2.0 times normal forecast demand. This tuning does not establish a final weather-model threshold. Dispatch uses nearest arrival, including available returning/relocating trucks at interpolated positions. Current travel assumptions are straight-line distance × 1.3 at 40 km/h, with 30 minutes on scene; these are simulation assumptions, not calibrated operating times.
 
-**Metrics:** `avg_response_min` is mean incident-to-arrival response time, `p90_response_min` is its 90th percentile, and `pct_within_15` is the percent reached within 15 minutes. B must confirm denominator, missing/unserved-incident handling, and percentile convention. The shell formats the share on a 0–100 scale; confirm that scale before integration. `relocation_count` is an additional display/handoff need, outside the three-field metrics contract; its mock value is not calculated from movements.
+**Metrics:** `avg_response_min` is mean incident-to-arrival response time, `p90_response_min` its 90th percentile, and `pct_within_15` the percent reached within 15 minutes (0–100). Also report `relocation_count`, `activations`, and `truck_hours`. Confirm denominator and percentile conventions for final reporting. Slider-visible incident rows include completed response outcomes, which may occur after the selected hour.
 
 ## Baselines and evaluation
 
-- **Fixed staging = primary naive baseline.** Waiting locations remain fixed; trucks still dispatch under the common replay rules. Yard locations and initialization need B's documented choice.
-- **Historical hotspots = optional second baseline.** README describes last week's hotspots. The current policy dropdown exposes only illustrative hotspot assignments. `baseline_forecast` is a forecast reference, not an implemented truck-placement baseline.
-- Replay the **same incidents across policies**, with matching dates, fleet size, dispatch rules, travel model, service assumptions, and a documented initialization protocol. Score policy differences without changing the incident sample.
-- Use only information available at each decision time. Do not use future replay incidents or held-out outcomes to choose earlier staging. A/B must define training and held-out periods.
-- Show initial staging/score, the hourly revised staging and actual reason, then the revised score. Moving a mock marker does not prove the coded loop or improvement.
-- README requests the demo day plus two held-out storm days. All measured outputs remain pending. Report fixed-minus-StormStage response differences in minutes and within-15 differences in percentage points; do not invent gains or hide zero/negative outcomes.
+- **Fixed yards (naive) = primary naive baseline.** Six trucks retain fixed waiting locations while dispatching under common replay rules.
+- **Best fixed plan = stronger secondary comparator.** Six trucks use an optimized static spread fitted without held-out test days. Historical hotspots remains an optional diagnostic; `baseline_forecast` is a demand reference, not a truck policy.
+- Replay the **same incidents across policies**, with matching dates, dispatch, travel, and service assumptions. Document initial staging and the capacity difference: baselines use 6 trucks; StormStage can use up to 10. Report truck-hours to expose that cost.
+- Use only information available at each decision time. Do not use future replay incidents or held-out outcomes to choose earlier staging. Preserve the documented tune/test separation when integrating A's real forecast.
+- Show initial plan/score, the hourly capacity/staging revision and recorded reason, then the revised score. The app's full-day cards do not supply per-step scores; use verified backend evidence for the coded cycle.
+- B's stand-in evaluation holds out 12 storm days and 8 normal days; settings were tuned on separate days. Rerun with A's real forecast and regenerated exports before filling **[FINAL WEATHER-DRIVEN RESULTS]**. Report baseline-minus-StormStage response differences in minutes and within-15 differences in percentage points, including zero/negative outcomes.
 
 ## Data meaning and presentation boundaries
 
 Open Calgary **reported traffic incidents are not equivalent to all collisions**. The planned forecast concerns demand represented by those records; it does not establish every collision, every tow request, or operational fleet response times. A must document reporting coverage and cleaning limitations and cite the exact source and weather station.
 
-The current app shell still uses **mock data until real outputs are integrated**. Root zone coordinates are displayed, but the gray points are locations, not incident observations or demand intensity. Static cards, fixture dates, mock snow messages, and truck assignments establish no measured forecast accuracy, policy benefit, or validated storm event. Keep the app's `MOCK / DEMO` labels visible during a shell walkthrough. The named intended user is a **roadside-assistance dispatcher / Calgary tow operator**; actual user engagement, a customer, or a partner is not verified. Proposed use and a future pilot are not customer commitments.
+The app displays **PRECOMPUTED / INTERIM** stand-in replay outputs. Gray grid points are zone locations, not demand intensity. Day-specific simulated metrics are available, but establish neither final weather-driven performance nor operational gains or forecast accuracy. Keep interim labels visible. The intended user is a **roadside-assistance dispatcher / Calgary tow operator**; engagement, customers, and partners remain unverified. Proposed use and a future pilot are not commitments.
 
-The Streamlit/Pandas/Pydeck shell provides a reviewable view of zones, assignments, and explanations. Separating forecast, placement, replay, and scoring handoffs is intended to let A/B/C validate outputs independently and compare policies through one replay. Efficiency, hosting cost, and operational scalability have not been measured.
+The Streamlit/Pandas/Pydeck dashboard presents zones, positions, explanations, and scores. Separate forecast, placement, replay, and scoring handoffs let A/B/C inspect evidence independently. Hosting cost and operational scalability have not been measured.
 
 ## Discrepancies and remaining blockers
 
 | Source claim / mismatch | Actual inspected state / resolution owner |
 | --- | --- |
-| README says to press Play and compare a real storm-day replay. | Play does not advance time; every day shares fixtures. B replay and C integration are pending. Pitch/runbook already disclose this. |
-| README describes showing a response-time drop and cites daily incident/snow-day counts. | No real response logs, measured results, or supporting data provenance are tracked on inspected main. The raw/cleaned incident files now on main do not validate these claims. A validates counts/days; B supplies measured comparisons. Treat reduction as an objective. |
-| README links `data/README.md`. | That documentation file remains absent on inspected main. The 2025 incident-cleaning script and raw/cleaned CSVs are present on main, but app integration is pending; A must supply data documentation and validation. |
-| Forecast and app expect different zone paths. | Forecast resolves to `C:/Users/adamb/data/processed/zones.csv`, outside this checkout and unavailable at inspection; app reads repository-root `zones.csv`. A must align the real data path/interface. |
-| Placement contract uses `truck_id`; app fixture tables use `unit_id`. | B/C must agree an adapter and position schema before integration. |
-| Mock relocation total vs displayed move. | Static fixture relocation counts are not derived from the single displayed assignment change. B supplies real counts; C replaces mock displays. |
-| README heading calls this “Case 6 (Option A).” | [Organizer README](https://github.com/nagusubra/industry-hackathon-lab/blob/main/README.md) lists five prepared Software and Computational Math cases. Submit as **Option A, own problem**, without implying an official prepared Case 6. |
-| Existing docs call user engagement an Option A verification item. | Organizer requires naming a user; the [rubric](https://github.com/nagusubra/industry-hackathon-lab/blob/main/JUDGING_RUBRIC.md) makes industry/mentor engagement encouraged, a bonus rather than a mandatory gate. Feedback remains pending; no relationship is verified. |
+| Final weather-driven performance is pending. | B results and replays use the stand-in forecast. A delivers the real model; B reruns evaluation/exports; C verifies the display. |
+| Play/Pause and forecast visualization are incomplete. | Use the hour slider for precomputed replay. No demand layer or live optimizer runs in the dashboard. C owns presentation verification. |
+| Final dataset documentation is missing. | `data/README.md` is absent. A must document sources, cleaning, coverage, time zones, and validation; B already uses incident data and C displays its replay exports. |
+| A's forecast stub has a zone-path mismatch. | It resolves outside this checkout; the adapter falls back to root `zones.csv`. The dashboard uses B's `data/processed/zones_grid.csv`. A/B must align the real path/interface. |
+| A forecast coverage differs from B's citywide grid. | A/B must align the 20-zone root file with B's 179-zone grid before final evaluation. |
+| Submission path | **Option A, own problem using public data.** |
+| Industry feedback is pending. | The named intended user is a dispatcher / Calgary tow operator. Engagement is encouraged in the [rubric](https://github.com/nagusubra/industry-hackathon-lab/blob/main/JUDGING_RUBRIC.md); no relationship or attributable quote is verified. |
 
-Ownership and the six-truck/three-hour design follow README and existing Role C docs. Backend status reflects the incident-cleaning artifacts on merged main while keeping validation, integration, and other teammate handoffs pending. No standalone build-plan file is tracked. Final architecture-visual verification/polish, clean-clone setup, integrated live demo, validated real-data/coded-cycle evidence, measured outcomes, and screenshot/recording backups remain pending. See [submission-checklist.md](submission-checklist.md) for the submission handoff. This documentation task changes no implementation or teammate files.
+The final design is 6 base trucks plus up to 4 forecast-triggered on-call trucks, using a three-hour demand horizon. Final architecture review, clean-clone setup, weather-driven cycle/results evidence, and screenshot/recording backups remain pending. See [submission-checklist.md](submission-checklist.md) for owners. This documentation task changes no implementation or teammate files.
