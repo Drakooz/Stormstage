@@ -2,7 +2,9 @@
 
 Forecast: `a` · Zones: `grid` (179 zones) · 6 trucks on duty · drive and scene model in `common.py`.
 
-**Held out properly.** All 12 test storm days **and** all 8 test normal days are excluded from every forecast history and from the fixed-plan training demand. On-call settings were picked on 5 other storm days + 8 other normal days with a rule fixed in advance. Chosen: call in **4** on-call trucks when the forecast runs **x2.0** normal.
+**Evaluation methodology:** With forecast source `a`, evaluation uses a causal rolling-origin / out-of-time forecast. For each replay decision, the forecast is fit only on information available before the requested UTC date. Earlier evaluation dates may become historical training data for later replay dates; therefore this is not a single frozen holdout set. `forecast.py` explicitly excludes Feb 4, Feb 14, and Nov 24 plus each following UTC date. B's full evaluation-day exclusions apply to the stand-in/nowcast history and fixed-plan training demand; A's `forecast()` does not receive that full set.
+
+**Policy selection:** On-call settings were picked on 5 separate tuning storm days + 8 separate tuning normal days with a rule fixed in advance. Chosen: call in **4** on-call trucks when the forecast runs **x2.0** normal.
 
 **Baselines:** Fixed yards (naive) is the primary naive baseline; Best fixed plan is a stronger secondary baseline.
 
